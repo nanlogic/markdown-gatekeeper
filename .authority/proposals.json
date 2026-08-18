@@ -1,0 +1,41 @@
+[
+  {
+    "id": "1787080980482-product-definition",
+    "path": "docs/proposals/product-definition.md",
+    "title": "Product Definition",
+    "topic": "product-definition",
+    "baseRevision": null,
+    "status": "published",
+    "sha256": "b2fad2b5e62ef42ccc0ed2b85acd07f83f7ad3e8d83d0fe05868e359c2113715",
+    "createdAt": "2026-08-18T19:23:00.484Z",
+    "publishedAt": "2026-08-18T19:23:00.560Z",
+    "publishedRevision": 1,
+    "archivePath": ".authority/archive/proposals/1787080980564-product-definition.md"
+  },
+  {
+    "id": "1787080980638-architecture",
+    "path": "docs/proposals/architecture.md",
+    "title": "Architecture",
+    "topic": "architecture",
+    "baseRevision": null,
+    "status": "published",
+    "sha256": "74cfe7e46ff64ea7e5f124c097ef5e65ac78b1db4e1c44cb65e7d3c2d83044b5",
+    "createdAt": "2026-08-18T19:23:00.639Z",
+    "publishedAt": "2026-08-18T19:23:00.715Z",
+    "publishedRevision": 1,
+    "archivePath": ".authority/archive/proposals/1787080980728-architecture.md"
+  },
+  {
+    "id": "1787080980804-dogfood-policy",
+    "path": "docs/proposals/dogfood-policy.md",
+    "title": "Dogfood Policy",
+    "topic": "dogfood-policy",
+    "baseRevision": null,
+    "status": "published",
+    "sha256": "49c8e623fdd5efae9824a7433abfb4c6510241ca673f003094c392502d03fcc6",
+    "createdAt": "2026-08-18T19:23:00.805Z",
+    "publishedAt": "2026-08-18T19:23:00.883Z",
+    "publishedRevision": 1,
+    "archivePath": ".authority/archive/proposals/1787080980897-dogfood-policy.md"
+  }
+]

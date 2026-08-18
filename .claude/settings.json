@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.authority/hooks/agent-guard.mjs",
+            "timeout": 10,
+            "statusMessage": "Checking Markdown authority policy"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "generatedAt": "2026-08-18T19:24:51.467Z",
+  "project": "Markdown Gatekeeper",
+  "registryRevision": 3,
+  "counts": {
+    "markdown": 11,
+    "current": 3,
+    "proposals": 0,
+    "unmanaged": 0,
+    "duplicateTopics": 0,
+    "suspiciousAuthorityClaims": 0
+  },
+  "documents": [
+    {
+      "path": ".authority/archive/proposals/1787080980564-product-definition.md",
+      "title": "Product Definition",
+      "topic": "product-definition",
+      "classification": "internal",
+      "selfClaimsAuthority": false,
+      "sha256": "b2fad2b5e62ef42ccc0ed2b85acd07f83f7ad3e8d83d0fe05868e359c2113715"
+    },
+    {
+      "path": ".authority/archive/proposals/1787080980728-architecture.md",
+      "title": "Architecture",
+      "topic": "architecture",
+      "classification": "internal",
+      "selfClaimsAuthority": true,
+      "sha256": "74cfe7e46ff64ea7e5f124c097ef5e65ac78b1db4e1c44cb65e7d3c2d83044b5"
+    },
+    {
+      "path": ".authority/archive/proposals/1787080980897-dogfood-policy.md",
+      "title": "Dogfood Policy",
+      "topic": "dogfood-policy",
+      "classification": "internal",
+      "selfClaimsAuthority": true,
+      "sha256": "49c8e623fdd5efae9824a7433abfb4c6510241ca673f003094c392502d03fcc6"
+    },
+    {
+      "path": ".authority/reports/LATEST.md",
+      "title": "Markdown Gatekeeper Scan",
+      "topic": "markdown-gatekeeper-scan",
+      "classification": "internal",
+      "selfClaimsAuthority": false,
+      "sha256": "8b6cd452da75c0dc3728ecaf90b9f999af83cadeb1166da93193bfbaf7fe1670"
+    },
+    {
+      "path": "AGENTS.md",
+      "title": "Agent Instructions",
+      "topic": "agent-instructions",
+      "classification": "entrypoint",
+      "selfClaimsAuthority": true,
+      "sha256": "cc9fea2cda05792faa1c6e9cc80172387befcf3e9198b634970805ff3d4014c7"
+    },
+    {
+      "path": "CLAUDE.md",
+      "title": "Claude Instructions",
+      "topic": "claude-instructions",
+      "classification": "entrypoint",
+      "selfClaimsAuthority": true,
+      "sha256": "1316a5e3dc0a1b19ca4dc0423801afeb29a4ec51958a39f5d178c0b8b79d2ece"
+    },
+    {
+      "path": "docs/current/architecture.md",
+      "title": "Architecture",
+      "topic": "architecture",
+      "classification": "current",
+      "selfClaimsAuthority": true,
+      "sha256": "74cfe7e46ff64ea7e5f124c097ef5e65ac78b1db4e1c44cb65e7d3c2d83044b5"
+    },
+    {
+      "path": "docs/current/dogfood-policy.md",
+      "title": "Dogfood Policy",
+      "topic": "dogfood-policy",
+      "classification": "current",
+      "selfClaimsAuthority": true,
+      "sha256": "49c8e623fdd5efae9824a7433abfb4c6510241ca673f003094c392502d03fcc6"
+    },
+    {
+      "path": "docs/current/product-definition.md",
+      "title": "Product Definition",
+      "topic": "product-definition",
+      "classification": "current",
+      "selfClaimsAuthority": false,
+      "sha256": "b2fad2b5e62ef42ccc0ed2b85acd07f83f7ad3e8d83d0fe05868e359c2113715"
+    },
+    {
+      "path": "PROJECT_AUTHORITY.md",
+      "title": "Project Authority",
+      "topic": "project-authority",
+      "classification": "entrypoint",
+      "selfClaimsAuthority": false,
+      "sha256": "903bf9ef64953955835a4169d243f76f35b0c2c0bb16650f1489ec58ab80bbbb"
+    },
+    {
+      "path": "README.md",
+      "title": "Markdown Gatekeeper",
+      "topic": "markdown-gatekeeper",
+      "classification": "entrypoint",
+      "selfClaimsAuthority": true,
+      "sha256": "aa92ea3162641f2cf227b719ff2565636d3bf91177df64f20c44d4fef001d9a5"
+    }
+  ],
+  "duplicates": [],
+  "unmanaged": [],
+  "suspiciousAuthorityClaims": []
+}

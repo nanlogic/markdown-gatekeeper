@@ -1,0 +1,4 @@
+node_modules/
+.authority/cache/
+.authority/local/
+*.log

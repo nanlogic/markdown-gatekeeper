@@ -1,0 +1,19 @@
+{
+  "name": "markdown-gatekeeper",
+  "version": "0.1.0",
+  "description": "Local-first authority control for Markdown projects used by humans and AI agents.",
+  "type": "module",
+  "bin": {
+    "mdg": "./bin/mdg.mjs"
+  },
+  "scripts": {
+    "mdg": "node ./bin/mdg.mjs",
+    "test": "node --test",
+    "check": "node ./bin/mdg.mjs check .",
+    "scan": "node ./bin/mdg.mjs scan ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "Apache-2.0"
+}
