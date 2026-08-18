@@ -1,4 +1,5 @@
 node_modules/
 .authority/cache/
 .authority/local/
+.authority/reports/
 *.log
