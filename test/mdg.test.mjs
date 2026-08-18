@@ -105,6 +105,18 @@ test("agent hook denies direct protected edits but allows proposals", () => {
     encoding: "utf8"
   });
   assert.equal(allowed.stdout, "");
+
+  const readable = spawnSync(process.execPath, [hook], {
+    input: JSON.stringify({ tool_name: "Bash", tool_input: { command: "Get-Content -Raw PROJECT_AUTHORITY.md" } }),
+    encoding: "utf8"
+  });
+  assert.equal(readable.stdout, "");
+
+  const shellWrite = spawnSync(process.execPath, [hook], {
+    input: JSON.stringify({ tool_name: "Bash", tool_input: { command: "Set-Content -LiteralPath PROJECT_AUTHORITY.md -Value bad" } }),
+    encoding: "utf8"
+  });
+  assert.equal(JSON.parse(shellWrite.stdout).hookSpecificOutput.permissionDecision, "deny");
 });
 
 test("init installs a Git pre-commit validator without replacing an existing hook", async (t) => {

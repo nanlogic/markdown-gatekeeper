@@ -22,11 +22,18 @@ const protectedPatterns = [
 ];
 
 const touchesProtected = protectedPatterns.some((pattern) => serialized.includes(pattern));
+const directEditTool = /^(?:apply_patch|write|edit)$/i.test(toolName);
+const command = String(toolInput.command || "");
+const bashWriteIntent = /^bash$/i.test(toolName) && (
+  /(?:^|[;&|\s])(?:set-content|add-content|out-file|remove-item|move-item|rename-item|copy-item|tee|rm|mv|cp)(?:\s|$)/i.test(command) ||
+  /(?:sed|perl)\s+[^\r\n]*(?:-i|-pi)\b/i.test(command) ||
+  /(?:^|[^>])>{1,2}(?!>)/.test(command)
+);
 const invokesPublisher = /(?:^|[\\/\s])(?:node\s+[^\s]*mdg\.mjs|mdg)(?:\s+)(?:publish|sync|init)(?:\s|$)/i.test(
-  String(toolInput.command || "")
+  command
 );
 
-if (touchesProtected && !invokesPublisher) {
+if (touchesProtected && (directEditTool || bashWriteIntent) && !invokesPublisher) {
   const reason = "Markdown Gatekeeper blocked a direct authority edit. Write a proposal and use mdg publish/sync.";
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
