@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "codex-skill-integration",
+  "scope": ".",
+  "title": "Codex Skill Integration",
+  "revision": 2,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.3",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "ec05f7d0f4f37011e8178012e390e36cfc920b744aebbe1c18fe6abda47f29bd",
+  "baseCurrentSha256": "ecf82c57fb56f1cef57040bfb539181140ab710c4f3ca319d31d6402230f2aa6",
+  "previousEvidencePath": ".authority/evidence/codex-skill-integration/r0001.md",
+  "previousEvidenceSha256": "b438a668f16f4e4acfd028c08368bd79f9469ba6fa5a05eab4de592b4bb59528",
+  "previousEvidenceDataPath": ".authority/evidence/codex-skill-integration/r0001.json",
+  "previousEvidenceDataSha256": "f677fba47ff71c8206c4d6a447ace21225259b1123d0faac98aa01e7524e1c72",
+  "changes": [
+    {
+      "item": "R-001",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The npm package must ship the `mdg` CLI and the matching `markdown-gatekeeper` Codex Skill; the CLI remains the deterministic execution and publishing layer."
+    },
+    {
+      "item": "R-002",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg setup codex` must install or update both the bundled Skill and a managed Markdown Gatekeeper bootstrap block in the user's Codex `AGENTS.md`."
+    },
+    {
+      "item": "R-003",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "At the start of every new Codex task, the bootstrap must search upward from the working directory for both `PROJECT_AUTHORITY.md` and `.authority/registry.json`; when found, it must invoke the Skill and load status plus applicable scoped current authority before planning or implementation."
+    },
+    {
+      "item": "R-004",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "A managed project must activate automatically without asking whether to use Gatekeeper. An unmanaged project must not be initialized, modified, or repeatedly prompted unless the user explicitly asks to use Gatekeeper."
+    },
+    {
+      "item": "R-005",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Updating the bootstrap must preserve all unrelated user instructions and replace only the Markdown Gatekeeper managed block. An older unmarked Markdown Gatekeeper auto-detection section may be migrated into the managed block."
+    },
+    {
+      "item": "R-006",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The Skill must use global `mdg` when available and may fall back to `node ./bin/mdg.mjs` inside the CLI repository. Missing execution support must be reported instead of bypassing authority."
+    },
+    {
+      "item": "R-007",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The Skill may guide proposal, adoption, explanation, and publication workflows but cannot grant approval, send documents without explicit disclosure approval, or write canonical authority directly."
+    },
+    {
+      "item": "R-008",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "New Codex tasks discover the installed bootstrap and Skill automatically. Already-running tasks may require a new task or explicit `$markdown-gatekeeper` invocation."
+    },
+    {
+      "item": "R-009",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Installation must refuse to overwrite an unmanaged Skill unless `--force` is explicit."
+    },
+    {
+      "item": "R-010",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "MCP remains optional and is not required for automatic Codex session behavior."
+    },
+    {
+      "item": "R-011",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg setup status` must report CLI version, Skill version, Skill path, global `AGENTS.md` path, and whether the global bootstrap is installed."
+    },
+    {
+      "item": "R-012",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Tests must prove that installation is idempotent, preserves unrelated global instructions, migrates the prior unmarked block, and leaves unmanaged projects untouched."
+    },
+    {
+      "item": "DOC-001",
+      "change": "removed",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Removed by an owner-approved revision.",
+      "confidence": "high",
+      "previousText": "# Codex Skill Integration\n\nMarkdown Gatekeeper should ship a Codex Skill alongside its npm CLI. The CLI remains the deterministic execution and publishing layer; the Skill teaches Codex when and how to invoke it, keeps routine authority discovery automatic, and preserves user approval boundaries.\n\nThe npm package includes `skills/markdown-gatekeeper/`. `mdg setup codex` installs or updates that bundled Skill in the current user's Codex skills directory, while `mdg setup status` reports the CLI and Skill installation state. Installation must not initialize unrelated projects or overwrite an unmanaged skill without an explicit force option.\n\nThe Skill activates when a project contains `PROJECT_AUTHORITY.md` and `.authority/registry.json`, or when a user explicitly asks to initialize, adopt, resolve, explain, or publish with Markdown Gatekeeper. It runs `mdg status` and scoped `mdg context`, reads only applicable current authority during normal work, treats Evidence as audit-only, and never bypasses proposal, owner, disclosure, or publish approval requirements.\n\nIf the global `mdg` command is unavailable but the active repository contains `bin/mdg.mjs`, the Skill may use `node ./bin/mdg.mjs`. A new Codex session discovers the installed Skill automatically; an already-running session may require a new task or explicit `$markdown-gatekeeper` invocation.\n\nThe Skill contains no MCP server and receives no direct canonical write authority. MCP remains an optional later interface over the same CLI and publisher rules."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/codex-skill-integration-v2.md",
+      "archivePath": ".authority/archive/proposals/1787106455119-codex-skill-integration-v2.md",
+      "sha256": "bcaff97510d0f22de771a4ff7485a366294a8a69e8d9ac571b3259dfb96d00b7",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T02:27:35.233Z"
+}

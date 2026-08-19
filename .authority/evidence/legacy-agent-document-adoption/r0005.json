@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "legacy-agent-document-adoption",
+  "scope": ".",
+  "title": "Legacy Agent Document Adoption",
+  "revision": 5,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "3aecb896fc45a26215ce81297ea3c5eea768d34bc558d840fcc6591736afc9ed",
+  "baseCurrentSha256": "b8e46f82567569a63ba588d7f45cd74a8fc971e1790f91a604e977a37847788d",
+  "previousEvidencePath": ".authority/evidence/legacy-agent-document-adoption/r0004.md",
+  "previousEvidenceSha256": "027ad3170e91150dbb41360dd54b4c285954938ab48085dcb60ba764f5d93e43",
+  "previousEvidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0004.json",
+  "previousEvidenceDataSha256": "a6f0810d61b7666a31637f5c9252dac725f7e398cf6e088ea4ef5e26a94ab8a4",
+  "changes": [
+    {
+      "item": "R-020",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Every external reviewer invocation has a configurable timeout with a three-minute default. Timeout must terminate the reviewer process, record the failure, and follow the normal fallback order instead of waiting indefinitely."
+    },
+    {
+      "item": "R-021",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Each adoption run has one exclusive mutation lock covering review, decision automation, apply, and session-result submission. Concurrent attempts fail quickly with the active operation and lock age; stale locks are recoverable deterministically."
+    },
+    {
+      "item": "R-022",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Every run records CLI version, Skill protocol version, adoption protocol version, and reviewer schema version. A command must refuse incompatible continuation and provide a restart or migration instruction rather than mixing workflow versions."
+    },
+    {
+      "item": "R-023",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Discovery assigns each Markdown file a deterministic class and reason: authority candidate, supporting reference, ordinary document, historical/archive, or excluded noise. Only authority candidates and their necessary supporting references enter the review bundle."
+    },
+    {
+      "item": "R-024",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Before confirmation, Gatekeeper shows the exact review bundle and an archive-risk preview listing every file that may be moved. After review, it records the exact planned archive set before the publisher applies it."
+    },
+    {
+      "item": "R-025",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Unresolved topics are presented through an owner-review interface in batches of up to three questions, using buttons rather than typed IDs or commands. Each question offers accept recommendation, keep unresolved, or inspect/select a source when available."
+    },
+    {
+      "item": "R-026",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Owner review revalidates source hashes, run protocol, lock state, and current registry base before applying a decision. Owner choices are recorded in Evidence and never bypass the deterministic publisher."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/adoption-reliability-owner-review.md",
+      "archivePath": ".authority/archive/proposals/1787137148607-adoption-reliability-owner-review.md",
+      "sha256": "7a0e2f9db767fe098071fe2c4454f4cc4d1134055b8daeb2dfb426f2914a6bc7",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T10:59:08.729Z"
+}

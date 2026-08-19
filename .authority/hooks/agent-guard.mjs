@@ -18,6 +18,7 @@ const serialized = JSON.stringify(toolInput).replace(/\\\\/g, "/").toLowerCase()
 const protectedPatterns = [
   "project_authority.md",
   ".authority/registry.json",
+  ".authority/evidence/",
   "docs/current/"
 ];
 
@@ -29,7 +30,7 @@ const bashWriteIntent = /^bash$/i.test(toolName) && (
   /(?:sed|perl)\s+[^\r\n]*(?:-i|-pi)\b/i.test(command) ||
   /(?:^|[^>])>{1,2}(?!>)/.test(command)
 );
-const invokesPublisher = /(?:^|[\\/\s])(?:node\s+[^\s]*mdg\.mjs|mdg)(?:\s+)(?:publish|sync|init)(?:\s|$)/i.test(
+const invokesPublisher = /(?:^|[\\/\s])(?:node\s+[^\s]*mdg\.mjs|mdg)(?:\s+)(?:publish|sync|init|adopt|owner|evidence)(?:\s|$)/i.test(
   command
 );
 

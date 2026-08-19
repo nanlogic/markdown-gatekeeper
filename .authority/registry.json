@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "project": {
     "name": "Markdown Gatekeeper",
     "owner": "Wayne"
   },
-  "revision": 3,
+  "revision": 12,
   "topics": {
     "product-definition": {
       "title": "Product Definition",
@@ -14,7 +14,14 @@
       "sha256": "b2fad2b5e62ef42ccc0ed2b85acd07f83f7ad3e8d83d0fe05868e359c2113715",
       "owner": "Wayne",
       "updatedAt": "2026-08-18T19:23:00.560Z",
-      "supersedes": null
+      "supersedes": null,
+      "topic": "product-definition",
+      "scope": ".",
+      "evidencePath": ".authority/evidence/product-definition/r0001.md",
+      "evidenceSha256": "6aa72a824d9228dfb3b831325efe6683073165ec15403efb06f7bfaebbe6f68f",
+      "evidenceDataPath": ".authority/evidence/product-definition/r0001.json",
+      "evidenceDataSha256": "dde192a5273e98e11f6c2e7b87b3f133461e4c7997c30124a4725fe9f2bcd47c",
+      "evidenceStatus": "complete"
     },
     "architecture": {
       "title": "Architecture",
@@ -24,7 +31,14 @@
       "sha256": "74cfe7e46ff64ea7e5f124c097ef5e65ac78b1db4e1c44cb65e7d3c2d83044b5",
       "owner": "Wayne",
       "updatedAt": "2026-08-18T19:23:00.715Z",
-      "supersedes": null
+      "supersedes": null,
+      "topic": "architecture",
+      "scope": ".",
+      "evidencePath": ".authority/evidence/architecture/r0001.md",
+      "evidenceSha256": "ab78d500788e062dcb3faf59f367723e969be88fb730b45ca52a2a9013f9c054",
+      "evidenceDataPath": ".authority/evidence/architecture/r0001.json",
+      "evidenceDataSha256": "e0c5c78f5975c3607b5cf03b7553ae0b4c291d94bc6192220e9e23232a95714a",
+      "evidenceStatus": "complete"
     },
     "dogfood-policy": {
       "title": "Dogfood Policy",
@@ -34,8 +48,65 @@
       "sha256": "49c8e623fdd5efae9824a7433abfb4c6510241ca673f003094c392502d03fcc6",
       "owner": "Wayne",
       "updatedAt": "2026-08-18T19:23:00.883Z",
-      "supersedes": null
+      "supersedes": null,
+      "topic": "dogfood-policy",
+      "scope": ".",
+      "evidencePath": ".authority/evidence/dogfood-policy/r0001.md",
+      "evidenceSha256": "4ea5e5f3d3686482eab202900d6bfa890789b202d80cceb97f7c794712f7637f",
+      "evidenceDataPath": ".authority/evidence/dogfood-policy/r0001.json",
+      "evidenceDataSha256": "8cb0fae1187724dbcbffc663773d13a6f6a9b4b06c6eea7ab06706ae9a79538b",
+      "evidenceStatus": "complete"
+    },
+    "legacy-agent-document-adoption": {
+      "title": "Legacy Agent Document Adoption",
+      "topic": "legacy-agent-document-adoption",
+      "scope": ".",
+      "status": "current",
+      "path": "docs/current/legacy-agent-document-adoption.md",
+      "revision": 6,
+      "sha256": "52433636e47d5b3af10ee4f56226ac904595789c45c1a5865d2b4c18029eac19",
+      "evidencePath": ".authority/evidence/legacy-agent-document-adoption/r0006.md",
+      "evidenceSha256": "b4be6f3e68ddb8695dd8f32baaaf543d9ecc4a75ac224a78456e2c1bb64803fa",
+      "evidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0006.json",
+      "evidenceDataSha256": "1d2da126093551e111c9b0c59c06749b6713511bc52a9f76ba9c0389e9169156",
+      "evidenceStatus": "complete",
+      "owner": "Wayne",
+      "updatedAt": "2026-08-19T11:16:43.594Z",
+      "adoptionRun": null,
+      "decisionId": null,
+      "supersedes": {
+        "path": "docs/current/legacy-agent-document-adoption.md",
+        "revision": 5,
+        "sha256": "3aecb896fc45a26215ce81297ea3c5eea768d34bc558d840fcc6591736afc9ed",
+        "evidencePath": ".authority/evidence/legacy-agent-document-adoption/r0005.md",
+        "evidenceSha256": "357b5863c2d03a8e926fdf9bf614852c3a779d2c9ff01484150fd8b6df318093"
+      }
+    },
+    "codex-skill-integration": {
+      "title": "Codex Skill Integration",
+      "topic": "codex-skill-integration",
+      "scope": ".",
+      "status": "current",
+      "path": "docs/current/codex-skill-integration.md",
+      "revision": 3,
+      "sha256": "b1c1d0c2695c5a8cd5ebfae5cce052a0268cd56078954a20dbfbe0ab386f0d24",
+      "evidencePath": ".authority/evidence/codex-skill-integration/r0003.md",
+      "evidenceSha256": "8d275926e677c1a520e9422a41f3851a46b029de16fa13558ff2473a075b5d94",
+      "evidenceDataPath": ".authority/evidence/codex-skill-integration/r0003.json",
+      "evidenceDataSha256": "df60397658fd0d89493b5cb7b5ef2f33a610180b50aebee80cea8bd1078f0aad",
+      "evidenceStatus": "complete",
+      "owner": "Wayne",
+      "updatedAt": "2026-08-19T12:51:00.582Z",
+      "adoptionRun": null,
+      "decisionId": null,
+      "supersedes": {
+        "path": "docs/current/codex-skill-integration.md",
+        "revision": 2,
+        "sha256": "ec05f7d0f4f37011e8178012e390e36cfc920b744aebbe1c18fe6abda47f29bd",
+        "evidencePath": ".authority/evidence/codex-skill-integration/r0002.md",
+        "evidenceSha256": "81fba23d689bef5b0b7e5e60affed76a8175f671589d049ad870b158a5038551"
+      }
     }
   },
-  "updatedAt": "2026-08-18T19:23:00.883Z"
+  "updatedAt": "2026-08-19T12:51:00.582Z"
 }

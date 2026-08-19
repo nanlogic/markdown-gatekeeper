@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "baseline",
+  "topic": "architecture",
+  "scope": ".",
+  "title": "Architecture",
+  "revision": 1,
+  "approvedBy": "Wayne",
+  "decision": "legacy publish accepted",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.2",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "74cfe7e46ff64ea7e5f124c097ef5e65ac78b1db4e1c44cb65e7d3c2d83044b5",
+  "baseCurrentSha256": null,
+  "previousEvidencePath": null,
+  "previousEvidenceSha256": null,
+  "previousEvidenceDataPath": null,
+  "previousEvidenceDataSha256": null,
+  "changes": [
+    {
+      "item": "DOC-001",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Bootstrap migration from schema v1 publish history.",
+      "confidence": "high",
+      "text": "# Architecture\n\nThe system has four roles:\n\n1. Worker agents and humans create ordinary Markdown proposals.\n2. An isolated LLM reviewer classifies topics, duplication, support, conflicts, and supersession.\n3. A deterministic policy and publisher controls revisions and the current pointer.\n4. The human owner decides ambiguous product intent.\n\n`PROJECT_AUTHORITY.md` is the generated human entry point. `.authority/registry.json` is the machine-verifiable current map. `docs/current/` holds canonical Markdown, while `docs/proposals/` holds competing work.\n\nClaude and Codex retain their native `CLAUDE.md` and `AGENTS.md` files. Each contains a small managed protocol block pointing to the same authority entry point.\n\nProject-local PreToolUse hooks block accidental direct edits to protected authority files. A Git pre-commit hook validates hashes and generated state. These are guardrails; a separately privileged publisher identity is required for a hard multi-user security boundary.\n\nMCP is deferred. The CLI is the core interface; an MCP server may later expose `resolve`, `propose`, `conflicts`, and `publish_request` without receiving direct canonical write authority."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/architecture.md",
+      "archivePath": ".authority/archive/proposals/1787080980728-architecture.md",
+      "sha256": "74cfe7e46ff64ea7e5f124c097ef5e65ac78b1db4e1c44cb65e7d3c2d83044b5",
+      "git": "bootstrap migration"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T00:57:30.768Z"
+}

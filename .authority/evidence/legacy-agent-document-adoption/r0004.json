@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "legacy-agent-document-adoption",
+  "scope": ".",
+  "title": "Legacy Agent Document Adoption",
+  "revision": 4,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "b8e46f82567569a63ba588d7f45cd74a8fc971e1790f91a604e977a37847788d",
+  "baseCurrentSha256": "12ee23a303d8e6376d58d80060d282a305fb65b2e2b1b65bde416260a77f964a",
+  "previousEvidencePath": ".authority/evidence/legacy-agent-document-adoption/r0003.md",
+  "previousEvidenceSha256": "dfe2381b53c1557d1729e77d1cbf88387acf0bfdefd705e327db01993285ed7a",
+  "previousEvidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0003.json",
+  "previousEvidenceDataSha256": "3a478972db7f5b00e3084f623c06aa5de98dc0be8af10b41ec4d9ed1d991d85f",
+  "changes": [
+    {
+      "item": "R-006",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "A reviewer classifies topics, scopes, sources, conflicts, and confidence. An isolated Codex CLI is preferred; when it cannot run, the current Codex Session may review the same explicitly delimited untrusted-source bundle and submit schema-valid output. Reviewer output remains untrusted structured input and never receives canonical write authority.",
+      "previousText": "The isolated reviewer classifies topics, scopes, sources, conflicts, and confidence. Reviewer output is untrusted structured input and never receives canonical write authority."
+    },
+    {
+      "item": "R-009",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "If neither an isolated reviewer nor a capable current Session is available, initialization still succeeds and reports one actionable blocker instead of requiring the user to learn the multi-command adoption workflow.",
+      "previousText": "If no supported reviewer is available, initialization still succeeds and reports one actionable blocker instead of requiring the user to learn the multi-command adoption workflow."
+    },
+    {
+      "item": "R-019",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Reviewer selection order in a Codex-hosted workflow is isolated Codex CLI, then the current Codex Session, then an explicitly configured fallback reviewer. A broken WindowsApps Codex executable must not silently cause a cross-vendor fallback while the current Codex Session is capable of reviewing."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/current-session-reviewer-fallback.md",
+      "archivePath": ".authority/archive/proposals/1787134189477-current-session-reviewer-fallback.md",
+      "sha256": "06a2badf3aeae0e0cdc3fb60cfa094501be498b813014594084be1f1d8fd26de",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T10:09:49.597Z"
+}

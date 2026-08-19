@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "legacy-agent-document-adoption",
+  "scope": ".",
+  "title": "Legacy Agent Document Adoption",
+  "revision": 2,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "6623476691e3bfb0094a82a13c01ff45a54e6c3691d207c4c08e9e760eaafda2",
+  "baseCurrentSha256": "7e78ca5254ab73cbe57ff8826643db72633e90581951340f633886dfad032d95",
+  "previousEvidencePath": ".authority/evidence/legacy-agent-document-adoption/r0001.md",
+  "previousEvidenceSha256": "de9bd456e6deae5f81d35757d8491b113e957641c01b084cb200305fbc1afa37",
+  "previousEvidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0001.json",
+  "previousEvidenceDataSha256": "e36c14620cc67b737230c769bb7882dd863387c23274ee95d583ae44fcff69fe",
+  "changes": [
+    {
+      "item": "R-001",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg init [project]` is the primary onboarding path: it initializes Gatekeeper, discovers legacy Agent-facing Markdown, asks at most one yes/no confirmation, then automatically reviews and applies safe high-confidence results."
+    },
+    {
+      "item": "R-002",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg init [project] --yes` provides the same end-to-end path without an interactive prompt for agents and automation; `--setup-only` preserves an initialization-only escape hatch."
+    },
+    {
+      "item": "R-003",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The single confirmation must disclose the number of candidate files, the selected reviewer, and that accepted high-confidence sources may be archived and replaced by generated authority adapters."
+    },
+    {
+      "item": "R-004",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Deterministic discovery must exclude obvious archives, generated Gatekeeper adapters, audit repair notes, current authority, proposals, ordinary README files, and repository-external or cross-project material by default."
+    },
+    {
+      "item": "R-005",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Discovery must follow explicit local Markdown references from Agent entrypoints and process-rule documents so named authority sources are not omitted merely because their filenames lack Agent keywords."
+    },
+    {
+      "item": "R-006",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The isolated reviewer classifies topics, scopes, sources, conflicts, and confidence. Reviewer output is untrusted structured input and never receives canonical write authority."
+    },
+    {
+      "item": "R-007",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The deterministic autopublisher may accept only high-confidence drafts that are not marked as requiring owner judgment. Medium-confidence, low-confidence, conflicting, or malformed results remain unresolved and are never silently published."
+    },
+    {
+      "item": "R-008",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "One unresolved topic must not prevent independent safe topics from publishing. Unresolved source files remain in place and are summarized in the final adoption report."
+    },
+    {
+      "item": "R-009",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "If no supported reviewer is available, initialization still succeeds and reports one actionable blocker instead of requiring the user to learn the multi-command adoption workflow."
+    },
+    {
+      "item": "R-010",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Re-running `mdg init` is idempotent for already managed projects: it must not create needless authority revisions or resend unchanged material."
+    },
+    {
+      "item": "R-011",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Every automatically published authority revision uses the same immutable baseline/delta Evidence chain, source hashes, archive manifest, registry validation, and recoverable publisher transaction as an explicitly driven adoption."
+    },
+    {
+      "item": "R-012",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Accepted legacy sources are moved, never destroyed, into `.authority/archive/legacy/<run-id>/<original-path>`. Sources shared with unresolved topics remain in place."
+    },
+    {
+      "item": "R-013",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Native `AGENTS.md` and `CLAUDE.md` content is preserved until its accepted rules have been published, after which the original is archived and the entrypoint becomes a minimal generated adapter."
+    },
+    {
+      "item": "R-014",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Normal Agent sessions read current authority only. Evidence remains audit-only and is traversed through `mdg explain` when needed."
+    },
+    {
+      "item": "R-015",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Authority is resolved by directory scope plus topic; deeper authority overrides a parent for the same topic."
+    },
+    {
+      "item": "R-016",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Dates and apparent recency are supporting signals only and cannot establish authority by themselves."
+    },
+    {
+      "item": "R-017",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The first release remains CLI- and Markdown-first. MCP, hosted services, vector databases, cryptographic team identity, and voting remain optional or deferred."
+    },
+    {
+      "item": "DOC-001",
+      "change": "removed",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Removed by an owner-approved revision.",
+      "confidence": "high",
+      "previousText": "# Legacy Agent Document Adoption\n\nMarkdown Gatekeeper must be able to adopt an existing project whose Agent-facing Markdown is duplicated, contradictory, stale, or ambiguously scoped. Adoption is local-first and limited by default to Agent instructions, rules, memory, context, plan, and handoff documents. Ordinary product documentation, code documentation, and chat history are excluded unless explicitly included.\n\nAuthority is identified by directory scope plus topic. Root authority applies globally, while a deeper current document for the same topic overrides its parent. Topic owners approve their topics; the project owner handles unowned and cross-topic ambiguity. Review can be completed and applied independently per topic.\n\nThe system performs deterministic discovery, hashing, Git metadata collection, duplicate detection, and preliminary clustering. After the user explicitly approves sending the disclosed source list, an isolated Codex, Claude, or configured generic reviewer may extract claims, propose scopes, compare conflicts, and draft merged current documents. An LLM never publishes. The deterministic publisher validates structured decisions, stale hashes, paths, ownership, and registry state.\n\nEvery successful authority revision has a separate, non-normative Markdown Evidence record. Revision one is a complete baseline; later revisions contain only added, modified, wording-only, removed, superseded, or provenance-changed rule entries and link by hash to the preceding Evidence record. Stable rule identifiers connect current rules to their evidence. Normal `resolve` and `context` operations read current authority only; `explain` traverses Evidence on demand for troubleshooting or audit.\n\nCurrent documents remain concise. Evidence records capture sources, archived paths and hashes, treatment, reasons, confidence, reviewer and publisher metadata, approval, and the current hash. Recency is only a weak signal and cannot establish authority by itself. Evidence explains why content was selected but does not confer authority; authority comes from the approved registry entry, verified current hash, and deterministic publish event.\n\nAccepted legacy sources are moved, never destroyed, into `.authority/archive/legacy/<run-id>/<original-path>` with a manifest. Unresolved sources remain in place without becoming authority. Native entry files such as `AGENTS.md` and `CLAUDE.md` are archived and regenerated as short adapters after their valid rules are adopted. Restore is permitted only when recorded hashes and the current base remain safe; otherwise restored material becomes a proposal.\n\nPublishing current, Evidence, registry, and audit events is one recoverable transaction. Evidence failure prevents publication. Evidence history is immutable; corrections are amendments. Integrity checks validate scoped resolution, current and Evidence hashes, Evidence-chain continuity, rule coverage, adoption manifests, adapters, and audit events. Existing schema-v1 topics migrate from matching events and archived proposals; incomplete provenance requires owner attestation.\n\nThe first release remains CLI- and Markdown-first. MCP, hosted services, vector databases, cryptographic team identity, and voting are deferred."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/lazy-init-adoption.md",
+      "archivePath": ".authority/archive/proposals/1787133232345-lazy-init-adoption.md",
+      "sha256": "711951276abef487942fcc33552a34902e6f0fbc6b20d413ef3d383420a6d680",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T09:53:52.463Z"
+}

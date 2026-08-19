@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "legacy-agent-document-adoption",
+  "scope": ".",
+  "title": "Legacy Agent Document Adoption",
+  "revision": 3,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "12ee23a303d8e6376d58d80060d282a305fb65b2e2b1b65bde416260a77f964a",
+  "baseCurrentSha256": "6623476691e3bfb0094a82a13c01ff45a54e6c3691d207c4c08e9e760eaafda2",
+  "previousEvidencePath": ".authority/evidence/legacy-agent-document-adoption/r0002.md",
+  "previousEvidenceSha256": "34dafbe4b79f5e86fac2bd310bc9e14ce4633ed00a45fa02607aee6c4e0859f4",
+  "previousEvidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0002.json",
+  "previousEvidenceDataSha256": "fd8574ab3d9224756d6b84cccef15b28396d7df68784891d091351bd3e351dc6",
+  "changes": [
+    {
+      "item": "R-001",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg init [project]` is the primary onboarding path: it initializes Gatekeeper, discovers legacy Agent-facing Markdown, presents at most one binary button confirmation, then automatically reviews and applies safe high-confidence results.",
+      "previousText": "`mdg init [project]` is the primary onboarding path: it initializes Gatekeeper, discovers legacy Agent-facing Markdown, asks at most one yes/no confirmation, then automatically reviews and applies safe high-confidence results."
+    },
+    {
+      "item": "R-003",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The single confirmation must disclose the number of candidate files, the selected reviewer, and that accepted high-confidence sources may be archived and replaced by generated authority adapters. Its only choices are `Auto-organize` and `Initialize only`; the user must not type commands, yes/no text, run IDs, source IDs, or decision IDs.",
+      "previousText": "The single confirmation must disclose the number of candidate files, the selected reviewer, and that accepted high-confidence sources may be archived and replaced by generated authority adapters."
+    },
+    {
+      "item": "R-018",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The onboarding target is one user click and the hard ceiling is ten user interactions for the entire initialization. Internal CLI calls and background steps do not count as user interactions."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/lazy-init-button-interaction.md",
+      "archivePath": ".authority/archive/proposals/1787133562353-lazy-init-button-interaction.md",
+      "sha256": "33d5e894196598ee8ee08615ac091b039ac2e091559af971832503ced684aa85",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T09:59:22.479Z"
+}

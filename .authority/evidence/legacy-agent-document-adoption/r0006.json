@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "legacy-agent-document-adoption",
+  "scope": ".",
+  "title": "Legacy Agent Document Adoption",
+  "revision": 6,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "52433636e47d5b3af10ee4f56226ac904595789c45c1a5865d2b4c18029eac19",
+  "baseCurrentSha256": "3aecb896fc45a26215ce81297ea3c5eea768d34bc558d840fcc6591736afc9ed",
+  "previousEvidencePath": ".authority/evidence/legacy-agent-document-adoption/r0005.md",
+  "previousEvidenceSha256": "357b5863c2d03a8e926fdf9bf614852c3a779d2c9ff01484150fd8b6df318093",
+  "previousEvidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0005.json",
+  "previousEvidenceDataSha256": "4a76a98fe6bd4d8111af54c642b0e97f4756cb3f430ee1834ed65279d370236b",
+  "changes": [
+    {
+      "item": "R-001",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg init [project]` is the zero-touch onboarding path: invoking it authorizes initialization, discovery, review, and application of safe high-confidence results without another confirmation.",
+      "previousText": "`mdg init [project]` is the primary onboarding path: it initializes Gatekeeper, discovers legacy Agent-facing Markdown, presents at most one binary button confirmation, then automatically reviews and applies safe high-confidence results."
+    },
+    {
+      "item": "R-002",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`--setup-only` preserves an initialization-only escape hatch and `--preview` produces discovery plus archive-risk output without review or publication. Agents and automation use the same default zero-touch path.",
+      "previousText": "`mdg init [project] --yes` provides the same end-to-end path without an interactive prompt for agents and automation; `--setup-only` preserves an initialization-only escape hatch."
+    },
+    {
+      "item": "R-003",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Before any archive mutation, the run records the reviewer, classified review bundle, archive-risk paths, and exact archive plan in its report. These details are available for inspection but do not create a mandatory confirmation step.",
+      "previousText": "The single confirmation must disclose the number of candidate files, the selected reviewer, and that accepted high-confidence sources may be archived and replaced by generated authority adapters. Its only choices are `Auto-organize` and `Initialize only`; the user must not type commands, yes/no text, run IDs, source IDs, or decision IDs."
+    },
+    {
+      "item": "R-018",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Zero-touch onboarding consumes no user interaction. Owner review is requested only when work actually reaches an unresolved topic, and the hard ceiling remains ten owner interactions for an adoption run.",
+      "previousText": "The onboarding target is one user click and the hard ceiling is ten user interactions for the entire initialization. Internal CLI calls and background steps do not count as user interactions."
+    },
+    {
+      "item": "R-024",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Gatekeeper records the exact review bundle and an archive-risk preview before review, then records the exact planned archive set before the publisher applies it.",
+      "previousText": "Before confirmation, Gatekeeper shows the exact review bundle and an archive-risk preview listing every file that may be moved. After review, it records the exact planned archive set before the publisher applies it."
+    },
+    {
+      "item": "R-027",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "At Session bootstrap, a managed project with registry revision zero or pending legacy entrypoints automatically resumes zero-touch adoption. The user must not be asked to remember or repeat an initialization command."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/zero-touch-bootstrap.md",
+      "archivePath": ".authority/archive/proposals/1787138203472-zero-touch-bootstrap.md",
+      "sha256": "145afa7aea3609d1038635b20ccd0a673af666f01479bdfb1c7faf8a09202cb5",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T11:16:43.592Z"
+}

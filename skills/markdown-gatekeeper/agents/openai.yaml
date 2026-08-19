@@ -1,0 +1,4 @@
+interface:
+  display_name: "Markdown Gatekeeper"
+  short_description: "Use verified project authority with the mdg CLI"
+  default_prompt: "Use $markdown-gatekeeper to load the applicable project authority before working."

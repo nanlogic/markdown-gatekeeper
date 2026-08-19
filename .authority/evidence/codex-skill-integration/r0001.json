@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "baseline",
+  "topic": "codex-skill-integration",
+  "scope": ".",
+  "title": "Codex Skill Integration",
+  "revision": 1,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.2",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "ecf82c57fb56f1cef57040bfb539181140ab710c4f3ca319d31d6402230f2aa6",
+  "baseCurrentSha256": null,
+  "previousEvidencePath": null,
+  "previousEvidenceSha256": null,
+  "previousEvidenceDataPath": null,
+  "previousEvidenceDataSha256": null,
+  "changes": [
+    {
+      "item": "DOC-001",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "# Codex Skill Integration\n\nMarkdown Gatekeeper should ship a Codex Skill alongside its npm CLI. The CLI remains the deterministic execution and publishing layer; the Skill teaches Codex when and how to invoke it, keeps routine authority discovery automatic, and preserves user approval boundaries.\n\nThe npm package includes `skills/markdown-gatekeeper/`. `mdg setup codex` installs or updates that bundled Skill in the current user's Codex skills directory, while `mdg setup status` reports the CLI and Skill installation state. Installation must not initialize unrelated projects or overwrite an unmanaged skill without an explicit force option.\n\nThe Skill activates when a project contains `PROJECT_AUTHORITY.md` and `.authority/registry.json`, or when a user explicitly asks to initialize, adopt, resolve, explain, or publish with Markdown Gatekeeper. It runs `mdg status` and scoped `mdg context`, reads only applicable current authority during normal work, treats Evidence as audit-only, and never bypasses proposal, owner, disclosure, or publish approval requirements.\n\nIf the global `mdg` command is unavailable but the active repository contains `bin/mdg.mjs`, the Skill may use `node ./bin/mdg.mjs`. A new Codex session discovers the installed Skill automatically; an already-running session may require a new task or explicit `$markdown-gatekeeper` invocation.\n\nThe Skill contains no MCP server and receives no direct canonical write authority. MCP remains an optional later interface over the same CLI and publisher rules."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/codex-skill-integration.md",
+      "archivePath": ".authority/archive/proposals/1787102752694-codex-skill-integration.md",
+      "sha256": "82cef6de4f467e3fe5c229d8be7db6004d9cb53ca5ff9cc6a98262909540c888",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-19T01:25:52.807Z"
+}
