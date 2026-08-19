@@ -152,6 +152,74 @@ test("init installs a Git pre-commit validator without replacing an existing hoo
   assert.match(hook, /markdown-gatekeeper:managed:start/);
 });
 
+test("installed pre-commit validator uses the global CLI when the managed project has no local bin", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-global-hook-"));
+  const fakeBin = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-fake-bin-"));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  t.after(() => fs.rm(fakeBin, { recursive: true, force: true }));
+  const initialized = spawnSync("git", ["init"], { cwd: root, encoding: "utf8" });
+  assert.equal(initialized.status, 0, initialized.stderr);
+  await initProject(root, { name: "global-hook-test" });
+  assert.equal(await fs.stat(path.join(root, ".authority", "hooks", "pre-commit.mjs")).then(() => true), true);
+  await assert.rejects(fs.stat(path.join(root, "bin", "mdg.mjs")));
+
+  const capture = path.join(root, "mdg-args.json");
+  const fakeCommand = path.join(fakeBin, process.platform === "win32" ? "mdg.cmd" : "mdg");
+  if (process.platform === "win32") {
+    await fs.writeFile(fakeCommand, `@echo off\nnode -e "require('fs').writeFileSync(process.env.MDG_CAPTURE, JSON.stringify(process.argv.slice(1)))" %*\n`, "utf8");
+  } else {
+    await fs.writeFile(fakeCommand, `#!/usr/bin/env node\nrequire("fs").writeFileSync(process.env.MDG_CAPTURE, JSON.stringify(process.argv.slice(2)));\n`, { mode: 0o755 });
+  }
+  const hookResult = spawnSync(process.execPath, [path.join(root, ".authority", "hooks", "pre-commit.mjs")], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, PATH: `${fakeBin}${path.delimiter}${process.env.PATH || ""}`, MDG_CAPTURE: capture },
+  });
+  assert.equal(hookResult.status, 0, hookResult.stderr);
+  assert.deepEqual(JSON.parse(await fs.readFile(capture, "utf8")), ["check", await fs.realpath(root)]);
+});
+
+test("init resolves the real Git hook path from a linked worktree gitfile", async (t) => {
+  const parent = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-worktree-parent-"));
+  const worktree = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-worktree-"));
+  await fs.rm(worktree, { recursive: true, force: true });
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  t.after(() => fs.rm(worktree, { recursive: true, force: true }));
+  for (const args of [
+    ["init"],
+    ["config", "user.email", "gatekeeper@example.invalid"],
+    ["config", "user.name", "Gatekeeper Test"],
+  ]) {
+    const result = spawnSync("git", args, { cwd: parent, encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+  }
+  await fs.writeFile(path.join(parent, "README.md"), "# Test\n", "utf8");
+  for (const args of [["add", "README.md"], ["commit", "-m", "initial"]]) {
+    const result = spawnSync("git", args, { cwd: parent, encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+  }
+  const added = spawnSync("git", ["worktree", "add", "-b", "gatekeeper-test", worktree], {
+    cwd: parent,
+    encoding: "utf8",
+  });
+  assert.equal(added.status, 0, added.stderr);
+  assert.equal((await fs.stat(path.join(worktree, ".git"))).isFile(), true);
+
+  const hookResult = spawnSync("git", ["rev-parse", "--git-path", "hooks/pre-commit"], {
+    cwd: worktree,
+    encoding: "utf8",
+  });
+  assert.equal(hookResult.status, 0, hookResult.stderr);
+  const hookPath = path.resolve(worktree, hookResult.stdout.trim());
+  await fs.mkdir(path.dirname(hookPath), { recursive: true });
+  await fs.writeFile(hookPath, "#!/bin/sh\necho existing-worktree\n", "utf8");
+
+  await initProject(worktree, { name: "worktree-test" });
+  const hook = await fs.readFile(hookPath, "utf8");
+  assert.match(hook, /echo existing-worktree/);
+  assert.match(hook, /markdown-gatekeeper:managed:start/);
+});
+
 test("publishing creates a baseline then an incremental Evidence chain", async (t) => {
   const root = await temporaryProject();
   t.after(() => fs.rm(root, { recursive: true, force: true }));

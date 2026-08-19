@@ -329,9 +329,19 @@ async function mergeHookConfig(target, event, matcher, command, commandWindows =
 }
 
 async function installGitPreCommit(root) {
-  const gitDir = path.join(root, ".git");
-  if (!(await exists(gitDir))) return false;
-  const target = path.join(gitDir, "hooks", "pre-commit");
+  let target;
+  try {
+    const { stdout } = await execFileAsync(
+      "git",
+      ["rev-parse", "--git-path", "hooks/pre-commit"],
+      { cwd: root, windowsHide: true }
+    );
+    const resolved = stdout.trim();
+    if (!resolved) return false;
+    target = path.resolve(root, resolved);
+  } catch {
+    return false;
+  }
   const start = "# markdown-gatekeeper:managed:start";
   const end = "# markdown-gatekeeper:managed:end";
   const block = `${start}\nnode \".authority/hooks/pre-commit.mjs\" || exit $?\n${end}`;
