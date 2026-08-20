@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "codex-skill-integration",
+  "scope": ".",
+  "title": "Codex Skill Integration",
+  "revision": 4,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "6fa55c4d635616e293b0a8ea9d88ee956111728e9affb336587be7b19f09fcb3",
+  "baseCurrentSha256": "b1c1d0c2695c5a8cd5ebfae5cce052a0268cd56078954a20dbfbe0ab386f0d24",
+  "previousEvidencePath": ".authority/evidence/codex-skill-integration/r0003.md",
+  "previousEvidenceSha256": "8d275926e677c1a520e9422a41f3851a46b029de16fa13558ff2473a075b5d94",
+  "previousEvidenceDataPath": ".authority/evidence/codex-skill-integration/r0003.json",
+  "previousEvidenceDataSha256": "df60397658fd0d89493b5cb7b5ef2f33a610180b50aebee80cea8bd1078f0aad",
+  "changes": [
+    {
+      "item": "R-002",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg setup codex` must install or update the bundled Skill, a managed Markdown Gatekeeper bootstrap block in the user's Codex `AGENTS.md`, and a stable launcher under the Codex home directory.",
+      "previousText": "`mdg setup codex` must install or update both the bundled Skill and a managed Markdown Gatekeeper bootstrap block in the user's Codex `AGENTS.md`."
+    },
+    {
+      "item": "R-006",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The Skill must try global `mdg` first. If it is unavailable, it must use the managed launcher under the Codex home directory before considering a verified repository-local `node ./bin/mdg.mjs`; it must never generate a predictable failed command merely to probe availability.",
+      "previousText": "The Skill must use global `mdg` directly. It may fall back to `node ./bin/mdg.mjs` only after the global command is unavailable and the local file is verified to exist; it must never generate a predictable failed command merely to probe availability."
+    },
+    {
+      "item": "R-016",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The managed launcher must use absolute package and Node paths so Codex GUI sessions work even when macOS does not expose npm's global executable directory through `PATH`."
+    },
+    {
+      "item": "R-009",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Installation must refuse to overwrite an unmanaged Skill or launcher unless `--force` is explicit.",
+      "previousText": "Installation must refuse to overwrite an unmanaged Skill unless `--force` is explicit."
+    },
+    {
+      "item": "R-011",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg setup status` must report CLI version, Skill version, Skill path, stable launcher path, global `AGENTS.md` path, and whether the global bootstrap and launcher are installed.",
+      "previousText": "`mdg setup status` must report CLI version, Skill version, Skill path, global `AGENTS.md` path, and whether the global bootstrap is installed."
+    },
+    {
+      "item": "R-012",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Tests must prove that installation is idempotent, preserves unrelated global instructions, migrates the prior unmarked block, leaves unmanaged projects untouched, installs quiet zero-touch bootstrap instructions, and creates a working stable launcher without relying on the caller's `PATH`.",
+      "previousText": "Tests must prove that installation is idempotent, preserves unrelated global instructions, migrates the prior unmarked block, leaves unmanaged projects untouched, and installs quiet zero-touch bootstrap instructions."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/mac-codex-launcher.md",
+      "archivePath": ".authority/archive/proposals/1787184405487-mac-codex-launcher.md",
+      "sha256": "4f248370a38c33405efb98e868a2018e26c71aa138c7848fb232c821e820f78f",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-20T00:06:45.625Z"
+}

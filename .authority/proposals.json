@@ -154,5 +154,18 @@
     "publishedAt": "2026-08-19T12:51:00.582Z",
     "publishedRevision": 3,
     "archivePath": ".authority/archive/proposals/1787143860446-quiet-session-bootstrap.md"
+  },
+  {
+    "id": "1787184405391-codex-skill-integration",
+    "path": "docs/proposals/mac-codex-launcher.md",
+    "title": "Codex Skill Integration",
+    "topic": "codex-skill-integration",
+    "baseRevision": 3,
+    "status": "published",
+    "sha256": "4f248370a38c33405efb98e868a2018e26c71aa138c7848fb232c821e820f78f",
+    "createdAt": "2026-08-20T00:06:45.392Z",
+    "publishedAt": "2026-08-20T00:06:45.626Z",
+    "publishedRevision": 4,
+    "archivePath": ".authority/archive/proposals/1787184405487-mac-codex-launcher.md"
   }
 ]

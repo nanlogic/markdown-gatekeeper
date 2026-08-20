@@ -2,7 +2,6 @@
 authority-topic: codex-skill-integration
 authority-scope: .
 authority-owner: Wayne
-authority-revision: 4
 ---
 
 # Codex Skill Integration

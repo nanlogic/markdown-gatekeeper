@@ -18,7 +18,7 @@ mdg setup codex
 mdg setup status
 ```
 
-During local development, use `npm link` in this repository instead of installing from the registry. `mdg setup codex` copies the bundled Skill into `$CODEX_HOME/skills/markdown-gatekeeper` (or `~/.codex/skills/markdown-gatekeeper`) and maintains a bounded bootstrap block in `$CODEX_HOME/AGENTS.md`. Every new Codex task then detects managed projects and invokes the Skill automatically, while unrelated global instructions and unmanaged projects are left alone.
+During local development, use `npm link` in this repository instead of installing from the registry. `mdg setup codex` copies the bundled Skill into `$CODEX_HOME/skills/markdown-gatekeeper` (or `~/.codex/skills/markdown-gatekeeper`), installs a stable launcher under `$CODEX_HOME/bin`, and maintains a bounded bootstrap block in `$CODEX_HOME/AGENTS.md`. The launcher uses absolute Node and package paths, so Codex GUI sessions on macOS do not depend on npm's global executable directory being present in `PATH`. Every new Codex task then detects managed projects and invokes the Skill automatically, while unrelated global instructions and unmanaged projects are left alone.
 
 Initialize and organize an existing project with one command:
 

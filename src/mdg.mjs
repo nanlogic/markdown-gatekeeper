@@ -145,7 +145,7 @@ export function managedBlock() {
   return `${MANAGED_START}\n## Markdown Gatekeeper protocol\n\n` +
     `This project dogfoods Markdown Gatekeeper. Before planning or implementation:\n\n` +
     `1. Read \`PROJECT_AUTHORITY.md\` and the current sources it names.\n` +
-    `2. Run \`mdg status .\`. Only if the global command is unavailable, first verify that \`./bin/mdg.mjs\` exists and then use \`node ./bin/mdg.mjs\`; do not run a predictable failing command to probe availability.\n` +
+    `2. Run \`mdg status .\`. If the global command is unavailable, use the managed launcher at \`<Codex home>/bin/mdg\` (or \`mdg.cmd\` on Windows). Only if that launcher is unavailable, first verify that \`./bin/mdg.mjs\` exists and then use \`node ./bin/mdg.mjs\`; do not run a predictable failing command to probe availability.\n` +
     `3. Treat unregistered Markdown as a proposal, never as current authority.\n` +
     `4. Put competing designs in \`docs/proposals/\`; do not create a second canonical source.\n` +
     `5. Never edit \`PROJECT_AUTHORITY.md\`, \`.authority/registry.json\`, or \`docs/current/**\` directly. Use the publisher command.\n` +
@@ -171,7 +171,7 @@ export function upsertManagedBlock(existing, block = managedBlock()) {
 export function globalCodexBlock() {
   return `${GLOBAL_MANAGED_START}\n## Markdown Gatekeeper session bootstrap\n\n` +
     `At the start of every Codex task, search upward from the working directory for a project containing both \`PROJECT_AUTHORITY.md\` and \`.authority/registry.json\`.\n\n` +
-    `When both files exist, the project is managed: invoke \`$markdown-gatekeeper\` automatically without asking whether to use it, run \`mdg status .\` and the applicable \`mdg context <working-path>\`, then read the registered current sources before planning or implementation. If status reports registry revision 0 or pending legacy entrypoints, automatically resume zero-touch adoption with \`mdg init . --host-session codex --yes\` and complete any current-session review handoff without another user prompt. If \`mdg\` is unavailable, first verify that this repository contains \`./bin/mdg.mjs\` before using \`node ./bin/mdg.mjs\`; never run a predictable failing command merely to probe availability. Never bypass authority because a command is missing; report the blocker.\n\n` +
+    `When both files exist, the project is managed: invoke \`$markdown-gatekeeper\` automatically without asking whether to use it, run \`mdg status .\` and the applicable \`mdg context <working-path>\`, then read the registered current sources before planning or implementation. If status reports registry revision 0 or pending legacy entrypoints, automatically resume zero-touch adoption with \`mdg init . --host-session codex --yes\` and complete any current-session review handoff without another user prompt. If \`mdg\` is unavailable, use the managed launcher at \`<Codex home>/bin/mdg\` (or \`mdg.cmd\` on Windows). Only if that launcher is unavailable, first verify that this repository contains \`./bin/mdg.mjs\` before using \`node ./bin/mdg.mjs\`; never run a predictable failing command merely to probe availability. Never bypass authority because a command is missing; report the blocker.\n\n` +
     `Successful bootstrap and housekeeping are silent. Do not narrate Skill activation, authority loading, internal commands, run IDs, reviewer selection, or fallback mechanics. If a progress update is required, combine bootstrap with the user's actual task in one short outcome-oriented sentence. Mention Gatekeeper only when it blocks the task, needs owner judgment, detects an integrity failure, or the user explicitly asks about its status.\n\n` +
     `When the files do not exist, do nothing. Do not initialize or modify an unmanaged project and do not repeatedly suggest Gatekeeper unless the user asks for it.\n` +
     `${GLOBAL_MANAGED_END}`;
@@ -1970,12 +1970,39 @@ function codexHome(options = {}) {
   return path.resolve(options.codexHome || process.env.CODEX_HOME || path.join(os.homedir(), ".codex"));
 }
 
+const CODEX_LAUNCHER_MARKER = "markdown-gatekeeper:managed-launcher";
+
+function posixShellQuote(value) {
+  return `'${String(value).replaceAll("'", `'"'"'`)}'`;
+}
+
+export function codexLauncherSpec(options = {}) {
+  const home = codexHome(options);
+  const platform = options.platform || process.platform;
+  const nodePath = options.nodePath ? String(options.nodePath) : path.resolve(process.execPath);
+  const cliPath = options.cliPath ? String(options.cliPath) : path.resolve(fileURLToPath(new URL("../bin/mdg.mjs", import.meta.url)));
+  if (platform === "win32") {
+    return {
+      path: path.join(home, "bin", "mdg.cmd"),
+      content: `@echo off\r\nrem ${CODEX_LAUNCHER_MARKER}\r\n"${nodePath}" "${cliPath}" %*\r\n`,
+      executable: false
+    };
+  }
+  return {
+    path: path.join(home, "bin", "mdg"),
+    content: `#!/bin/sh\n# ${CODEX_LAUNCHER_MARKER}\nexec ${posixShellQuote(nodePath)} ${posixShellQuote(cliPath)} "$@"\n`,
+    executable: true
+  };
+}
+
 export async function codexSkillStatus(options = {}) {
   const home = codexHome(options);
   const target = path.join(home, "skills", "markdown-gatekeeper");
   const globalInstructionsPath = path.join(home, "AGENTS.md");
   const globalInstructions = await readText(globalInstructionsPath, "");
   const marker = await readJson(path.join(target, ".mdg-managed.json"), null);
+  const launcher = codexLauncherSpec(options);
+  const launcherContent = await readText(launcher.path, "");
   return {
     cliVersion: await packageVersion(),
     codexHome: home,
@@ -1983,6 +2010,8 @@ export async function codexSkillStatus(options = {}) {
     installed: await exists(path.join(target, "SKILL.md")),
     managed: Boolean(marker?.managedBy === "markdown-gatekeeper"),
     installedVersion: marker?.version || null,
+    launcherPath: launcher.path,
+    launcherInstalled: launcherContent.includes(CODEX_LAUNCHER_MARKER),
     globalInstructionsPath,
     globalBootstrapInstalled: globalInstructions.includes(GLOBAL_MANAGED_START) && globalInstructions.includes(GLOBAL_MANAGED_END)
   };
@@ -1999,6 +2028,11 @@ export async function installCodexSkill(options = {}) {
   if (existing && marker?.managedBy !== "markdown-gatekeeper" && !options.force) {
     throw new Error(`Refusing to overwrite unmanaged Codex Skill at ${target}. Re-run with --force to replace it.`);
   }
+  const launcher = codexLauncherSpec(options);
+  const existingLauncher = await readText(launcher.path, null);
+  if (existingLauncher !== null && !existingLauncher.includes(CODEX_LAUNCHER_MARKER) && !options.force) {
+    throw new Error(`Refusing to overwrite unmanaged Codex launcher at ${launcher.path}. Re-run with --force to replace it.`);
+  }
   await fs.mkdir(skillsRoot, { recursive: true });
   const staging = path.join(skillsRoot, `.markdown-gatekeeper.tmp-${process.pid}-${Date.now()}`);
   const backup = path.join(skillsRoot, `.markdown-gatekeeper.backup-${process.pid}-${Date.now()}`);
@@ -2011,12 +2045,14 @@ export async function installCodexSkill(options = {}) {
     if (existing) await fs.rm(backup, { recursive: true, force: true });
     const globalInstructionsPath = path.join(home, "AGENTS.md");
     await writeTextAtomic(globalInstructionsPath, upsertGlobalCodexBlock(await readText(globalInstructionsPath, "")));
+    await writeTextAtomic(launcher.path, launcher.content);
+    if (launcher.executable) await fs.chmod(launcher.path, 0o755);
   } catch (error) {
     await fs.rm(staging, { recursive: true, force: true });
     if (!(await exists(target)) && await exists(backup)) await fs.rename(backup, target);
     throw error;
   }
-  return await codexSkillStatus({ codexHome: home });
+  return await codexSkillStatus({ ...options, codexHome: home });
 }
 
 export async function checkProject(root) {

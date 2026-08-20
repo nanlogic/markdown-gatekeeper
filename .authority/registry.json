@@ -4,7 +4,7 @@
     "name": "Markdown Gatekeeper",
     "owner": "Wayne"
   },
-  "revision": 12,
+  "revision": 13,
   "topics": {
     "product-definition": {
       "title": "Product Definition",
@@ -88,25 +88,25 @@
       "scope": ".",
       "status": "current",
       "path": "docs/current/codex-skill-integration.md",
-      "revision": 3,
-      "sha256": "b1c1d0c2695c5a8cd5ebfae5cce052a0268cd56078954a20dbfbe0ab386f0d24",
-      "evidencePath": ".authority/evidence/codex-skill-integration/r0003.md",
-      "evidenceSha256": "8d275926e677c1a520e9422a41f3851a46b029de16fa13558ff2473a075b5d94",
-      "evidenceDataPath": ".authority/evidence/codex-skill-integration/r0003.json",
-      "evidenceDataSha256": "df60397658fd0d89493b5cb7b5ef2f33a610180b50aebee80cea8bd1078f0aad",
+      "revision": 4,
+      "sha256": "6fa55c4d635616e293b0a8ea9d88ee956111728e9affb336587be7b19f09fcb3",
+      "evidencePath": ".authority/evidence/codex-skill-integration/r0004.md",
+      "evidenceSha256": "7a960cb1c66c765bd3979c661023a719b08324a3766673329c3169c80c6313c8",
+      "evidenceDataPath": ".authority/evidence/codex-skill-integration/r0004.json",
+      "evidenceDataSha256": "569eea9b4a0abd210e803d9315cf22899405cd3c14eee8f719a838354ebaae7d",
       "evidenceStatus": "complete",
       "owner": "Wayne",
-      "updatedAt": "2026-08-19T12:51:00.582Z",
+      "updatedAt": "2026-08-20T00:06:45.626Z",
       "adoptionRun": null,
       "decisionId": null,
       "supersedes": {
         "path": "docs/current/codex-skill-integration.md",
-        "revision": 2,
-        "sha256": "ec05f7d0f4f37011e8178012e390e36cfc920b744aebbe1c18fe6abda47f29bd",
-        "evidencePath": ".authority/evidence/codex-skill-integration/r0002.md",
-        "evidenceSha256": "81fba23d689bef5b0b7e5e60affed76a8175f671589d049ad870b158a5038551"
+        "revision": 3,
+        "sha256": "b1c1d0c2695c5a8cd5ebfae5cce052a0268cd56078954a20dbfbe0ab386f0d24",
+        "evidencePath": ".authority/evidence/codex-skill-integration/r0003.md",
+        "evidenceSha256": "8d275926e677c1a520e9422a41f3851a46b029de16fa13558ff2473a075b5d94"
       }
     }
   },
-  "updatedAt": "2026-08-19T12:51:00.582Z"
+  "updatedAt": "2026-08-20T00:06:45.626Z"
 }

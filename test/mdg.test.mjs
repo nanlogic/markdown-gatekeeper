@@ -14,6 +14,7 @@ import {
   automaticAdoption,
   checkProject,
   codexSkillStatus,
+  codexLauncherSpec,
   contextForPath,
   decideAdoption,
   explainTopic,
@@ -553,17 +554,20 @@ test("Codex Skill installs from the CLI bundle and protects unmanaged skills", a
   const installed = await installCodexSkill({ codexHome: home });
   assert.equal(installed.installed, true);
   assert.equal(installed.managed, true);
-  assert.equal(installed.installedVersion, "0.6.2");
+  assert.equal(installed.installedVersion, "0.6.3");
   assert.equal(installed.globalBootstrapInstalled, true);
+  assert.equal(installed.launcherInstalled, true);
+  assert.match(await fs.readFile(installed.launcherPath, "utf8"), /markdown-gatekeeper:managed-launcher/);
   const skill = await fs.readFile(path.join(home, "skills", "markdown-gatekeeper", "SKILL.md"), "utf8");
   assert.match(skill, /mdg context/);
   assert.match(skill, /Do not send separate commentary/);
-  assert.equal((await codexSkillStatus({ codexHome: home })).cliVersion, "0.6.2");
+  assert.equal((await codexSkillStatus({ codexHome: home })).cliVersion, "0.6.3");
   const globalInstructions = await fs.readFile(path.join(home, "AGENTS.md"), "utf8");
   assert.match(globalInstructions, /Keep this personal instruction\./);
   assert.equal(globalInstructions.split(GLOBAL_MANAGED_START).length - 1, 1);
   assert.doesNotMatch(globalInstructions, /Old unmanaged bootstrap/);
   assert.match(globalInstructions, /Successful bootstrap and housekeeping are silent/);
+  assert.match(globalInstructions, /managed launcher/);
   assert.match(globalInstructions, /never run a predictable failing command/);
   await installCodexSkill({ codexHome: home });
   assert.equal(await fs.readFile(path.join(home, "AGENTS.md"), "utf8"), globalInstructions);
@@ -571,4 +575,26 @@ test("Codex Skill installs from the CLI bundle and protects unmanaged skills", a
   await fs.rm(path.join(home, "skills", "markdown-gatekeeper", ".mdg-managed.json"));
   await assert.rejects(installCodexSkill({ codexHome: home }), /Refusing to overwrite unmanaged/);
   assert.equal((await installCodexSkill({ codexHome: home, force: true })).managed, true);
+});
+
+test("Codex setup creates a macOS launcher with absolute Node and CLI paths", async (t) => {
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-mac-launcher-"));
+  t.after(() => fs.rm(home, { recursive: true, force: true }));
+  const spec = codexLauncherSpec({ codexHome: home, platform: "darwin", nodePath: "/opt/homebrew/bin/node", cliPath: "/Users/test/Markdown Gatekeeper/bin/mdg.mjs" });
+  assert.equal(spec.path, path.join(home, "bin", "mdg"));
+  assert.match(spec.content, /'\/opt\/homebrew\/bin\/node'/);
+  assert.match(spec.content, /'\/Users\/test\/Markdown Gatekeeper\/bin\/mdg\.mjs'/);
+  assert.match(spec.content, /"\$@"/);
+  assert.equal(spec.executable, true);
+});
+
+test("Codex setup protects an unmanaged stable launcher", async (t) => {
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-launcher-guard-"));
+  t.after(() => fs.rm(home, { recursive: true, force: true }));
+  const launcher = codexLauncherSpec({ codexHome: home });
+  await fs.mkdir(path.dirname(launcher.path), { recursive: true });
+  await fs.writeFile(launcher.path, "user-managed launcher\n", "utf8");
+  await assert.rejects(installCodexSkill({ codexHome: home }), /Refusing to overwrite unmanaged Codex launcher/);
+  const forced = await installCodexSkill({ codexHome: home, force: true });
+  assert.equal(forced.launcherInstalled, true);
 });
