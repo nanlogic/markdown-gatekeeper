@@ -24,6 +24,7 @@ import {
   ownerReview,
   proposeDocument,
   publishDocument,
+  reconcileCodeState,
   restoreAdoption,
   resolveTopic,
   reviewAdoption,
@@ -85,6 +86,75 @@ test("direct canonical tampering fails integrity check", async (t) => {
   const check = await checkProject(root);
   assert.equal(check.ok, false);
   assert.ok(check.errors.some((error) => error.includes("changed outside publisher")));
+});
+
+test("authority integrity is stable across LF and CRLF checkouts", async (t) => {
+  const root = await temporaryProject();
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const source = path.join(root, "docs", "proposals", "portable.md");
+  await fs.writeFile(source, "# Portable\n\n- R-001 — Keep authority portable.\n", "utf8");
+  const published = await publishDocument(root, "docs/proposals/portable.md", { topic: "portable", approve: true });
+  for (const relative of ["PROJECT_AUTHORITY.md", published.topicRecord.path, published.topicRecord.evidencePath, published.topicRecord.evidenceDataPath]) {
+    const target = path.join(root, relative);
+    const content = await fs.readFile(target, "utf8");
+    await fs.writeFile(target, content.replace(/(?<!\r)\n/g, "\r\n"), "utf8");
+  }
+  const check = await checkProject(root);
+  assert.equal(check.ok, true, check.errors.join("\n"));
+});
+
+test("code reconciliation creates a bounded scoped baseline without publishing authority", async (t) => {
+  const root = await temporaryProject();
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.mkdir(path.join(root, "services", "api", "test"), { recursive: true });
+  await fs.mkdir(path.join(root, "services", "web"), { recursive: true });
+  await fs.mkdir(path.join(root, "node_modules", "noise"), { recursive: true });
+  await fs.writeFile(path.join(root, "services", "api", "server.js"), "export const port = 3000;\n", "utf8");
+  await fs.writeFile(path.join(root, "services", "api", "test", "server.test.js"), "test('server', () => {});\n", "utf8");
+  await fs.writeFile(path.join(root, "services", "web", "client.js"), "export const ui = true;\n", "utf8");
+  await fs.writeFile(path.join(root, "node_modules", "noise", "generated.js"), "ignored\n", "utf8");
+  const before = JSON.parse(await fs.readFile(path.join(root, ".authority", "registry.json"), "utf8")).revision;
+  const result = await reconcileCodeState(root, "services/api", { limit: 1 });
+  assert.equal(result.mode, "baseline");
+  assert.equal(result.summary.candidateCount, 2);
+  assert.equal(result.summary.returnedCount, 1);
+  assert.equal(result.summary.truncated, true);
+  assert.equal(result.files[0].kind, "test");
+  assert.ok(result.files.every((file) => file.path.startsWith("services/api/")));
+  assert.doesNotMatch(JSON.stringify(result), /node_modules|services\/web/);
+  const after = JSON.parse(await fs.readFile(path.join(root, ".authority", "registry.json"), "utf8")).revision;
+  assert.equal(after, before);
+});
+
+test("code reconciliation detects committed and dirty implementation changes incrementally", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-reconcile-git-"));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  for (const args of [["init"], ["config", "user.email", "gatekeeper@example.invalid"], ["config", "user.name", "Gatekeeper Test"]]) {
+    const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+  }
+  await initProject(root, { name: "reconcile-git" });
+  await fs.mkdir(path.join(root, "src"), { recursive: true });
+  await fs.writeFile(path.join(root, "src", "app.js"), "export const version = 1;\n", "utf8");
+  await fs.writeFile(path.join(root, "src", "app.test.js"), "test('v1', () => {});\n", "utf8");
+  for (const args of [["add", "."], ["commit", "--no-verify", "-m", "baseline"]]) {
+    const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+  }
+  const baseline = await reconcileCodeState(root, "src");
+  assert.equal(baseline.mode, "baseline");
+  await fs.writeFile(path.join(root, "src", "app.js"), "export const version = 2;\n", "utf8");
+  for (const args of [["add", "src/app.js"], ["commit", "--no-verify", "-m", "implement v2"]]) {
+    const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+  }
+  await fs.writeFile(path.join(root, "src", "app.test.js"), "test('v2', () => {});\n", "utf8");
+  const incremental = await reconcileCodeState(root, "src");
+  assert.equal(incremental.mode, "incremental");
+  assert.ok(incremental.files.some((file) => file.path === "src/app.js" && file.committedChange));
+  assert.ok(incremental.files.some((file) => file.path === "src/app.test.js" && file.workingTreeChange));
+  assert.equal(incremental.git.dirty, true);
+  assert.equal(incremental.baselineReport, baseline.report);
 });
 
 test("stale base revision is rejected", async (t) => {
@@ -554,14 +624,14 @@ test("Codex Skill installs from the CLI bundle and protects unmanaged skills", a
   const installed = await installCodexSkill({ codexHome: home });
   assert.equal(installed.installed, true);
   assert.equal(installed.managed, true);
-  assert.equal(installed.installedVersion, "0.6.3");
+  assert.equal(installed.installedVersion, "0.7.0");
   assert.equal(installed.globalBootstrapInstalled, true);
   assert.equal(installed.launcherInstalled, true);
   assert.match(await fs.readFile(installed.launcherPath, "utf8"), /markdown-gatekeeper:managed-launcher/);
   const skill = await fs.readFile(path.join(home, "skills", "markdown-gatekeeper", "SKILL.md"), "utf8");
   assert.match(skill, /mdg context/);
   assert.match(skill, /Do not send separate commentary/);
-  assert.equal((await codexSkillStatus({ codexHome: home })).cliVersion, "0.6.3");
+  assert.equal((await codexSkillStatus({ codexHome: home })).cliVersion, "0.7.0");
   const globalInstructions = await fs.readFile(path.join(home, "AGENTS.md"), "utf8");
   assert.match(globalInstructions, /Keep this personal instruction\./);
   assert.equal(globalInstructions.split(GLOBAL_MANAGED_START).length - 1, 1);

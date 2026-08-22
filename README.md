@@ -34,6 +34,7 @@ After installation, routine Codex Sessions use Gatekeeper silently. If a managed
 node .\bin\mdg.mjs status .
 node .\bin\mdg.mjs scan .
 node .\bin\mdg.mjs context services\api
+node .\bin\mdg.mjs reconcile services\api --json
 node .\bin\mdg.mjs resolve architecture --path services\api
 ```
 
@@ -52,6 +53,7 @@ node .\bin\mdg.mjs check .
 - `PROJECT_AUTHORITY.md` is the generated human-readable entry point.
 - `.authority/registry.json` is the deterministic current pointer map.
 - `.authority/evidence/` contains immutable, non-normative audit records. Revision one is a baseline; later records contain only changed rules.
+- `.authority/reports/code-reconciliation/` contains ignored, non-normative snapshots of implementation drift candidates.
 - `docs/current/` contains published canonical Markdown.
 - `docs/proposals/` contains competing work until review.
 - Local Git records history and enables rollback.
@@ -68,6 +70,7 @@ The LLM acts as a semantic reviewer. The publisher, not the LLM, owns the state 
 | `mdg scan` | Inventory Markdown and surface duplicates or unmanaged claims |
 | `mdg resolve` | Return the current source for a topic |
 | `mdg context` | Return the deepest applicable authority for every topic at a path |
+| `mdg reconcile` | Compare the applicable Current context with bounded code-change candidates |
 | `mdg explain` | Trace a rule through its on-demand Evidence chain |
 | `mdg evidence amend` | Append a non-destructive correction to Evidence |
 | `mdg propose` | Register a Markdown document as pending work |
@@ -82,7 +85,7 @@ The LLM acts as a semantic reviewer. The publisher, not the LLM, owns the state 
 
 ## Adopt an existing project
 
-The default path is `mdg init .`. It discovers likely Agent-facing documents, follows their explicit Markdown authority references, excludes obvious archives and audit noise, then asks one yes/no question before review. High-confidence topics publish automatically; ambiguous topics remain unresolved and their files stay in place.
+The default path is `mdg init .`. It discovers likely Agent-facing documents, follows their explicit Markdown authority references, excludes obvious archives and audit noise, and proceeds without another confirmation. High-confidence topics publish automatically; ambiguous topics remain unresolved and their files stay in place. After authority exists, initialization also writes a bounded implementation-observation baseline so later Sessions can detect code changes that outpace the documents.
 
 The lower-level workflow remains available for debugging and expert control:
 

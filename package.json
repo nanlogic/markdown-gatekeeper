@@ -1,6 +1,6 @@
 {
   "name": "markdown-gatekeeper",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "Local-first authority control for Markdown projects used by humans and AI agents.",
   "type": "module",
   "bin": {

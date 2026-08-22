@@ -15,6 +15,8 @@ This project dogfoods Markdown Gatekeeper. Before planning or implementation:
 
 Use `mdg context <path>` for scoped authority. Evidence under `.authority/evidence/` is audit-only; read it through `mdg explain` only when troubleshooting.
 
+When a task depends on implementation behavior or changes code, tests, schemas, configuration, or scenes, run `mdg reconcile <working-path> --json` and inspect the relevant returned files. Reconciliation is non-normative: code may produce a proposal but never silently replaces Current.
+
 Keep successful Gatekeeper bootstrap and housekeeping silent. Do not narrate Skill activation, authority loading, internal commands, run IDs, reviewer selection, or fallback mechanics. If a host requires a progress update, combine this work with the user's actual task in one short outcome-oriented sentence. Mention Gatekeeper only when it blocks the task, needs owner judgment, detects an integrity failure, or the user explicitly asks about its status.
 
 The LLM is a reviewer. The deterministic publisher controls current authority. Low-confidence product conflicts require the human owner.

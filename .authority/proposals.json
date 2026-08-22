@@ -167,5 +167,18 @@
     "publishedAt": "2026-08-20T00:06:45.626Z",
     "publishedRevision": 4,
     "archivePath": ".authority/archive/proposals/1787184405487-mac-codex-launcher.md"
+  },
+  {
+    "id": "1787440509918-code-reconciliation",
+    "path": "docs/proposals/code-reconciliation.md",
+    "title": "Code Reconciliation",
+    "topic": "code-reconciliation",
+    "baseRevision": 0,
+    "status": "published",
+    "sha256": "bfaa4b37bc2d6b15b45134d4e2fe10df8007d137756a5094ec980dfdc0601b07",
+    "createdAt": "2026-08-22T23:15:09.920Z",
+    "publishedAt": "2026-08-22T23:15:10.114Z",
+    "publishedRevision": 1,
+    "archivePath": ".authority/archive/proposals/1787440509994-code-reconciliation.md"
   }
 ]

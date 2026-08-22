@@ -4,7 +4,7 @@
     "name": "Markdown Gatekeeper",
     "owner": "Wayne"
   },
-  "revision": 13,
+  "revision": 14,
   "topics": {
     "product-definition": {
       "title": "Product Definition",
@@ -106,7 +106,26 @@
         "evidencePath": ".authority/evidence/codex-skill-integration/r0003.md",
         "evidenceSha256": "8d275926e677c1a520e9422a41f3851a46b029de16fa13558ff2473a075b5d94"
       }
+    },
+    "code-reconciliation": {
+      "title": "Code Reconciliation",
+      "topic": "code-reconciliation",
+      "scope": ".",
+      "status": "current",
+      "path": "docs/current/code-reconciliation.md",
+      "revision": 1,
+      "sha256": "49447039111261c6fac82e6b3261fe287cbea10e31bebcc957e9f34f9472df1e",
+      "evidencePath": ".authority/evidence/code-reconciliation/r0001.md",
+      "evidenceSha256": "a6dea9bf8b937adb5633873a55d0e6bd83974bd78a32d6713261fe9a1c0ce843",
+      "evidenceDataPath": ".authority/evidence/code-reconciliation/r0001.json",
+      "evidenceDataSha256": "7cbb61e1d785aba9060b94ab5c4627f80270be213da5bc8c521feb0d0e3d600b",
+      "evidenceStatus": "complete",
+      "owner": "Wayne",
+      "updatedAt": "2026-08-22T23:15:10.114Z",
+      "adoptionRun": null,
+      "decisionId": null,
+      "supersedes": null
     }
   },
-  "updatedAt": "2026-08-20T00:06:45.626Z"
+  "updatedAt": "2026-08-22T23:15:10.114Z"
 }

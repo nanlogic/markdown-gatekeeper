@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "baseline",
+  "topic": "code-reconciliation",
+  "scope": ".",
+  "title": "Code Reconciliation",
+  "revision": 1,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "49447039111261c6fac82e6b3261fe287cbea10e31bebcc957e9f34f9472df1e",
+  "baseCurrentSha256": null,
+  "previousEvidencePath": null,
+  "previousEvidenceSha256": null,
+  "previousEvidenceDataPath": null,
+  "previousEvidenceDataSha256": null,
+  "changes": [
+    {
+      "item": "R-001",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Current authority represents declared intent; code reconciliation represents observed implementation. Neither may silently replace the other."
+    },
+    {
+      "item": "R-002",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "`mdg reconcile [path]` must create a non-normative implementation snapshot containing the Git commit, dirty state, applicable Current topics, and relevant code, test, schema, configuration, and scene files."
+    },
+    {
+      "item": "R-003",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "The first reconciliation for a scope must establish a baseline; later reconciliations should inspect committed and working-tree changes since the previous snapshot while retaining a link to the baseline report."
+    },
+    {
+      "item": "R-004",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Reconciliation classifications are `aligned`, `code-ahead`, `doc-ahead`, `conflict`, and `unverifiable`. The deterministic CLI may report candidates but must not claim semantic alignment without reviewer evidence."
+    },
+    {
+      "item": "R-005",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Code, tests, schemas, configuration, and scenes may be cited as Evidence with commit SHA, dirty state, path, hash, and reviewer confidence, but do not become normative Current merely because they are newer."
+    },
+    {
+      "item": "R-006",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Tests, executable schemas, and effective configuration are stronger implementation signals than code comments or Markdown dates; dates alone never determine intent."
+    },
+    {
+      "item": "R-007",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "When a task depends on implemented behavior, the Codex Skill must run reconciliation and inspect the relevant implementation before planning or changing code."
+    },
+    {
+      "item": "R-008",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "High-confidence descriptive drift may produce a proposal automatically. Normative product conflicts, ambiguous intent, and deletions remain owner decisions."
+    },
+    {
+      "item": "R-009",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Successful reconciliation is silent. The Agent surfaces only a material conflict, an implementation gap that affects the task, an integrity failure, or an explicit status request."
+    },
+    {
+      "item": "R-010",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Reconciliation reports and caches are non-normative derived data under ignored `.authority/reports/` and `.authority/cache/`; normal runtime context must not load them unless the task depends on implementation behavior."
+    },
+    {
+      "item": "R-011",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Reconciliation must exclude authority internals, dependencies, generated build output, binary assets, and unrelated Markdown."
+    },
+    {
+      "item": "R-012",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Candidate collection must be bounded and report truncation rather than flooding the Agent context."
+    },
+    {
+      "item": "R-013",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Tests must cover baseline and incremental snapshots, dirty and committed changes, scoped filtering, ignored files, bounded output, non-Git fallback, and proof that reconciliation never publishes Current."
+    },
+    {
+      "item": "R-014",
+      "change": "selected",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Explicit owner-approved source.",
+      "confidence": "high",
+      "text": "Cross-platform integrity checks must treat LF and CRLF as equivalent for Gatekeeper-generated text and Agent-facing Markdown evidence while continuing to detect substantive changes."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/code-reconciliation.md",
+      "archivePath": ".authority/archive/proposals/1787440509994-code-reconciliation.md",
+      "sha256": "bfaa4b37bc2d6b15b45134d4e2fe10df8007d137756a5094ec980dfdc0601b07",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-08-22T23:15:10.112Z"
+}

@@ -20,6 +20,13 @@ export const SKILL_PROTOCOL_VERSION = 2;
 
 const DEFAULT_REVIEWER_TIMEOUT_MS = 180_000;
 const DEFAULT_STALE_LOCK_MS = 15 * 60_000;
+const DEFAULT_RECONCILE_LIMIT = 200;
+
+const IMPLEMENTATION_EXTENSIONS = new Set([
+  ".c", ".cc", ".cfg", ".cjs", ".cpp", ".cs", ".css", ".gd", ".gdshader", ".gql", ".go", ".graphql", ".h", ".hpp", ".ini", ".java", ".js", ".jsx", ".json", ".kt", ".kts", ".lua", ".mjs", ".php", ".proto", ".ps1", ".py", ".rb", ".rs", ".scss", ".sh", ".sql", ".svelte", ".swift", ".toml", ".tres", ".ts", ".tscn", ".tsx", ".vue", ".yaml", ".yml"
+]);
+const IMPLEMENTATION_BASENAMES = new Set(["dockerfile", "makefile", "justfile"]);
+const IMPLEMENTATION_EXCLUDED_BASENAMES = new Set(["package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock"]);
 
 const execFileAsync = promisify(execFile);
 
@@ -72,6 +79,18 @@ export function slugify(value) {
 
 export function sha256(content) {
   return crypto.createHash("sha256").update(content).digest("hex");
+}
+
+function canonicalAuthorityText(content) {
+  return String(content).replace(/\r\n/g, "\n");
+}
+
+function authoritySha256(content) {
+  return sha256(canonicalAuthorityText(content));
+}
+
+function textHashMatches(content, expected) {
+  return sha256(content) === expected || authoritySha256(content) === expected;
 }
 
 async function exists(target) {
@@ -152,6 +171,7 @@ export function managedBlock() {
     `6. If status reports registry revision 0 or pending legacy entrypoints, automatically run \`mdg init . --host-session codex --yes\` (or the repository-local CLI) and complete any current-session review handoff without asking the user to repeat initialization.\n` +
     `7. Run \`mdg check .\` before declaring authority-related work complete, using the verified local fallback only when necessary.\n\n` +
     `Use \`mdg context <path>\` for scoped authority. Evidence under \`.authority/evidence/\` is audit-only; read it through \`mdg explain\` only when troubleshooting.\n\n` +
+    `When a task depends on implementation behavior or changes code, tests, schemas, configuration, or scenes, run \`mdg reconcile <working-path> --json\` and inspect the relevant returned files. Reconciliation is non-normative: code may produce a proposal but never silently replaces Current.\n\n` +
     `Keep successful Gatekeeper bootstrap and housekeeping silent. Do not narrate Skill activation, authority loading, internal commands, run IDs, reviewer selection, or fallback mechanics. If a host requires a progress update, combine this work with the user's actual task in one short outcome-oriented sentence. Mention Gatekeeper only when it blocks the task, needs owner judgment, detects an integrity failure, or the user explicitly asks about its status.\n\n` +
     `The LLM is a reviewer. The deterministic publisher controls current authority. Low-confidence product conflicts require the human owner.\n` +
     `${MANAGED_END}`;
@@ -173,6 +193,7 @@ export function globalCodexBlock() {
     `At the start of every Codex task, search upward from the working directory for a project containing both \`PROJECT_AUTHORITY.md\` and \`.authority/registry.json\`.\n\n` +
     `When both files exist, the project is managed: invoke \`$markdown-gatekeeper\` automatically without asking whether to use it, run \`mdg status .\` and the applicable \`mdg context <working-path>\`, then read the registered current sources before planning or implementation. If status reports registry revision 0 or pending legacy entrypoints, automatically resume zero-touch adoption with \`mdg init . --host-session codex --yes\` and complete any current-session review handoff without another user prompt. If \`mdg\` is unavailable, use the managed launcher at \`<Codex home>/bin/mdg\` (or \`mdg.cmd\` on Windows). Only if that launcher is unavailable, first verify that this repository contains \`./bin/mdg.mjs\` before using \`node ./bin/mdg.mjs\`; never run a predictable failing command merely to probe availability. Never bypass authority because a command is missing; report the blocker.\n\n` +
     `Successful bootstrap and housekeeping are silent. Do not narrate Skill activation, authority loading, internal commands, run IDs, reviewer selection, or fallback mechanics. If a progress update is required, combine bootstrap with the user's actual task in one short outcome-oriented sentence. Mention Gatekeeper only when it blocks the task, needs owner judgment, detects an integrity failure, or the user explicitly asks about its status.\n\n` +
+    `When a task depends on implementation behavior or changes code, tests, schemas, configuration, or scenes, run \`mdg reconcile <working-path> --json\` and inspect the relevant returned files. Treat its output as non-normative implementation observation; code may produce a proposal but never silently replaces Current.\n\n` +
     `When the files do not exist, do nothing. Do not initialize or modify an unmanaged project and do not repeatedly suggest Gatekeeper unless the user asks for it.\n` +
     `${GLOBAL_MANAGED_END}`;
 }
@@ -822,7 +843,7 @@ export async function publishDocument(root, sourcePath, options = {}) {
     const targetRelative = normalizeSlashes(options.target || currentPathFor(scope, topicId));
     const target = path.resolve(root, targetRelative);
     if (!isInside(root, target)) throw new Error("Publish target must be inside the project.");
-    const previousContent = existing ? await readText(path.join(root, existing.path)) : "";
+    const previousContent = existing ? canonicalAuthorityText(await readText(path.join(root, existing.path))) : "";
     const revision = (existing?.revision || 0) + 1;
     const owner = options.owner || existing?.owner || registry.project.owner || "human-owner";
     const storedContent = buildAuthorityDocument(sourceContent, { topic: topicId, scope, owner, revision }, previousContent);
@@ -920,7 +941,7 @@ export async function publishDocument(root, sourcePath, options = {}) {
         const to = path.join(root, entry.archiveRelative);
         if (!(await exists(from))) throw new Error(`Legacy source changed or disappeared: ${entry.sourceRelative}`);
         const actual = await readText(from);
-        if (entry.sha256 && sha256(actual) !== entry.sha256) throw new Error(`Legacy source changed after review: ${entry.sourceRelative}`);
+        if (entry.sha256 && !textHashMatches(actual, entry.sha256)) throw new Error(`Legacy source changed after review: ${entry.sourceRelative}`);
         await fs.mkdir(path.dirname(to), { recursive: true });
         await fs.rename(from, to);
         moved.push({ from, to, replacement: entry.replacement || null });
@@ -971,6 +992,196 @@ export async function contextForPath(root, requestedPath = ".") {
   return { root, path: relativePath, authorities: [...selected.values()].sort((a, b) => a.topic.localeCompare(b.topic)) };
 }
 
+function isImplementationPath(relative) {
+  const normalized = normalizeSlashes(relative).replace(/^\.\//, "");
+  const lower = normalized.toLowerCase();
+  if (!normalized || normalized.startsWith(".authority/") || normalized.startsWith(".codex/") || normalized.startsWith(".claude/")) return false;
+  if (lower.split("/").some((segment) => IGNORED_DIRS.has(segment) || ["coverage", ".next", ".nuxt", ".godot", "vendor"].includes(segment))) return false;
+  const basename = path.posix.basename(lower);
+  if (IMPLEMENTATION_EXCLUDED_BASENAMES.has(basename)) return false;
+  return IMPLEMENTATION_BASENAMES.has(basename) || IMPLEMENTATION_EXTENSIONS.has(path.posix.extname(lower));
+}
+
+function implementationKind(relative) {
+  const lower = normalizeSlashes(relative).toLowerCase();
+  const basename = path.posix.basename(lower);
+  if (/(^|\/)(__tests__|tests?|specs?)(\/|$)|(?:^|[._-])(test|spec)(?:[._-]|$)/.test(lower)) return "test";
+  if (/schema|migration|\.sql$|\.graphql$|\.gql$|\.proto$/.test(lower)) return "schema";
+  if ([".json", ".yaml", ".yml", ".toml", ".ini", ".cfg"].includes(path.posix.extname(lower)) || ["dockerfile", "makefile", "justfile"].includes(basename)) return "configuration";
+  if ([".tscn", ".tres", ".gdshader"].includes(path.posix.extname(lower))) return "scene";
+  return "source";
+}
+
+function splitNullList(output) {
+  return String(output || "").split("\0").map((item) => normalizeSlashes(item.trim())).filter(Boolean);
+}
+
+async function gitList(root, args) {
+  const { stdout } = await execFileAsync("git", args, { cwd: root, windowsHide: true, maxBuffer: 32 * 1024 * 1024 });
+  return splitNullList(stdout);
+}
+
+async function gitHead(root) {
+  try {
+    const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"], { cwd: root, windowsHide: true });
+    return stdout.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+async function isAncestor(root, older, newer) {
+  try {
+    await execFileAsync("git", ["merge-base", "--is-ancestor", older, newer], { cwd: root, windowsHide: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function walkImplementation(root, current = root, result = []) {
+  const entries = await fs.readdir(current, { withFileTypes: true });
+  for (const entry of entries) {
+    if (IGNORED_DIRS.has(entry.name) || ["coverage", ".next", ".nuxt", ".godot", "vendor"].includes(entry.name)) continue;
+    const absolute = path.join(current, entry.name);
+    const relative = normalizeSlashes(path.relative(root, absolute));
+    if (entry.isDirectory()) {
+      if (relative.startsWith(".authority/")) continue;
+      await walkImplementation(root, absolute, result);
+    } else if (entry.isFile() && isImplementationPath(relative)) result.push(relative);
+  }
+  return result;
+}
+
+async function requestedImplementationScope(root, requestedPath) {
+  const relative = relativeQueryPath(root, requestedPath);
+  const absolute = path.resolve(root, relative);
+  try {
+    const stat = await fs.stat(absolute);
+    return { relative, exactFile: stat.isFile() };
+  } catch {
+    return { relative, exactFile: Boolean(path.posix.extname(relative)) };
+  }
+}
+
+function pathInImplementationScope(relative, scope) {
+  if (scope.relative === ".") return true;
+  return scope.exactFile ? relative === scope.relative : relative === scope.relative || relative.startsWith(`${scope.relative}/`);
+}
+
+function reconciliationPriority(item) {
+  const kindOrder = { test: 0, schema: 1, configuration: 2, source: 3, scene: 4 };
+  const dirtyOrder = item.workingTreeChange ? 0 : item.committedChange ? 1 : 2;
+  return [dirtyOrder, kindOrder[item.kind] ?? 9, item.path];
+}
+
+function comparePriority(left, right) {
+  const a = reconciliationPriority(left);
+  const b = reconciliationPriority(right);
+  return a[0] - b[0] || a[1] - b[1] || a[2].localeCompare(b[2]);
+}
+
+export async function reconcileCodeState(root, requestedPath = ".", options = {}) {
+  root = await findProjectRoot(root);
+  const registry = await loadRegistry(root);
+  const scope = await requestedImplementationScope(root, requestedPath);
+  const context = await contextForPath(root, scope.relative);
+  const cachePath = path.join(root, ".authority", "cache", "code-reconciliation.json");
+  const cache = await readJson(cachePath, { schemaVersion: 1, scopes: {} });
+  cache.scopes ??= {};
+  const previous = cache.scopes[scope.relative] || null;
+  const head = await gitHead(root);
+  let mode = "baseline";
+  let allPaths = [];
+  let committed = new Set();
+  let unstaged = new Set();
+  let staged = new Set();
+  let untracked = new Set();
+  if (head) {
+    allPaths = await gitList(root, ["ls-files", "-z", "--cached", "--others", "--exclude-standard"]);
+    unstaged = new Set(await gitList(root, ["diff", "--name-only", "-z"]));
+    staged = new Set(await gitList(root, ["diff", "--cached", "--name-only", "-z"]));
+    untracked = new Set(await gitList(root, ["ls-files", "-z", "--others", "--exclude-standard"]));
+    const since = options.since ? String(options.since) : previous?.head;
+    if (since && await isAncestor(root, since, head)) {
+      mode = options.since ? "explicit-range" : "incremental";
+      committed = new Set(await gitList(root, ["diff", "--name-only", "-z", `${since}..${head}`]));
+    }
+  } else {
+    allPaths = await walkImplementation(root);
+  }
+  const dirty = new Set([...unstaged, ...staged, ...untracked]);
+  const candidateSet = mode === "baseline" ? new Set(allPaths) : new Set([...committed, ...dirty]);
+  const candidates = [];
+  for (const relative of candidateSet) {
+    if (!isImplementationPath(relative) || !pathInImplementationScope(relative, scope)) continue;
+    const absolute = path.join(root, relative);
+    try {
+      const stat = await fs.stat(absolute);
+      if (!stat.isFile()) continue;
+      const content = await fs.readFile(absolute);
+      candidates.push({
+        path: relative,
+        kind: implementationKind(relative),
+        bytes: stat.size,
+        sha256: sha256(content),
+        committedChange: committed.has(relative),
+        workingTreeChange: dirty.has(relative),
+        untracked: untracked.has(relative)
+      });
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      candidates.push({
+        path: relative,
+        kind: implementationKind(relative),
+        bytes: 0,
+        sha256: null,
+        deleted: true,
+        committedChange: committed.has(relative),
+        workingTreeChange: dirty.has(relative),
+        untracked: false
+      });
+    }
+  }
+  candidates.sort(comparePriority);
+  const requestedLimit = Number(options.limit || DEFAULT_RECONCILE_LIMIT);
+  const limit = Number.isInteger(requestedLimit) && requestedLimit > 0 ? Math.min(requestedLimit, 1000) : DEFAULT_RECONCILE_LIMIT;
+  const selected = candidates.slice(0, limit);
+  const generatedAt = new Date().toISOString();
+  const reportName = `${generatedAt.replace(/[:.]/g, "-")}-${slugify(scope.relative)}.json`;
+  const reportRelative = normalizeSlashes(path.join(".authority", "reports", "code-reconciliation", reportName));
+  const result = {
+    schemaVersion: 1,
+    documentRole: "implementation-observation",
+    normative: false,
+    root,
+    path: scope.relative,
+    mode,
+    generatedAt,
+    git: { head, dirty: dirty.size > 0, previousHead: previous?.head || null },
+    authorities: context.authorities.map((topic) => ({ key: topic.key, topic: topic.topic, scope: topic.scope, revision: topic.revision, path: topic.path, updatedAt: topic.updatedAt })),
+    summary: {
+      status: selected.length ? "review-needed" : "no-new-implementation-change",
+      candidateCount: candidates.length,
+      returnedCount: selected.length,
+      truncated: candidates.length > selected.length,
+      classifications: ["aligned", "code-ahead", "doc-ahead", "conflict", "unverifiable"]
+    },
+    files: selected,
+    report: reportRelative,
+    baselineReport: previous?.baselineReport || (mode === "baseline" ? reportRelative : null),
+    previousReport: previous?.latestReport || null,
+    guidance: "Compare these implementation observations with applicable Current authority. Do not publish or change authority solely because code is newer."
+  };
+  if (options.writeReport !== false) {
+    await writeJsonAtomic(path.join(root, reportRelative), result);
+    await writeJsonAtomic(path.join(root, ".authority", "reports", "code-reconciliation", "LATEST.json"), result);
+    cache.scopes[scope.relative] = { head, scannedAt: generatedAt, latestReport: reportRelative, baselineReport: result.baselineReport };
+    await writeJsonAtomic(cachePath, cache);
+  }
+  return result;
+}
+
 export async function resolveTopic(root, query, options = {}) {
   root = await findProjectRoot(root);
   const context = await contextForPath(root, options.path || ".");
@@ -992,8 +1203,9 @@ async function readEvidenceChain(root, topicRecord) {
     const absolute = path.join(root, dataPath);
     const raw = await readText(absolute, null);
     if (raw === null) throw new Error(`Missing Evidence data: ${dataPath}`);
-    if (expectedHash && sha256(raw) !== expectedHash) throw new Error(`Evidence data hash mismatch: ${dataPath}`);
-    const record = JSON.parse(raw);
+    const canonicalRaw = canonicalAuthorityText(raw);
+    if (expectedHash && sha256(canonicalRaw) !== expectedHash) throw new Error(`Evidence data hash mismatch: ${dataPath}`);
+    const record = JSON.parse(canonicalRaw);
     chain.push({ dataPath, ...record });
     dataPath = record.previousEvidenceDataPath;
     expectedHash = record.previousEvidenceDataSha256;
@@ -1202,7 +1414,7 @@ export async function startAdoption(root, options = {}) {
       title: firstHeading(content, path.basename(file.relative, ".md")),
       topicHint: slugify(parseFrontmatter(content)["authority-topic"] || firstHeading(content, path.basename(file.relative, ".md"))),
       scopeHint: normalizeSlashes(path.posix.dirname(file.relative)) === "." ? "." : normalizeSlashes(path.posix.dirname(file.relative)),
-      sha256: sha256(content),
+      sha256: authoritySha256(content),
       bytes: Buffer.byteLength(content),
       git: await gitEvidence(root, file.relative),
       classification: discoveryByPath.get(file.relative).classification,
@@ -1382,7 +1594,7 @@ async function runReviewerAdapter(root, reviewer, promptPath, schemaPath, output
 async function verifyAdoptionSources(root, manifest) {
   for (const source of manifest.sources) {
     const content = await readText(path.join(root, source.path), null);
-    if (content === null || sha256(content) !== source.sha256) throw new Error(`Source changed after discovery: ${source.path}`);
+    if (content === null || !textHashMatches(content, source.sha256)) throw new Error(`Source changed after discovery: ${source.path}`);
   }
 }
 
@@ -1558,7 +1770,7 @@ export async function applyAdoption(root, runId, options = {}) {
     for (const id of topic.sources) {
       const source = sourceMap.get(id);
       const content = await readText(path.join(root, source.path), null);
-      if (content === null || sha256(content) !== source.sha256) throw new Error(`Source changed after review: ${source.path}`);
+      if (content === null || !textHashMatches(content, source.sha256)) throw new Error(`Source changed after review: ${source.path}`);
     }
     const sourceContent = decision.action === "select"
       ? await readText(path.join(root, sourceMap.get(decision.selectedSource).path))
@@ -1834,7 +2046,7 @@ export async function restoreAdoption(root, runId, decisionId) {
   for (const entry of entries) {
     const archived = path.join(root, entry.archivePath);
     const content = await readText(archived, null);
-    if (content === null || sha256(content) !== entry.sha256) throw new Error(`Archived source failed hash verification: ${entry.archivePath}`);
+    if (content === null || !textHashMatches(content, entry.sha256)) throw new Error(`Archived source failed hash verification: ${entry.archivePath}`);
     const original = path.join(root, entry.originalPath);
     const existing = await readText(original, null);
     const replacementIsUntouched = existing === null || (entry.replacementSha256 && sha256(existing) === entry.replacementSha256);
@@ -2072,7 +2284,7 @@ export async function checkProject(root) {
       continue;
     }
     const content = await readText(target);
-    if (sha256(content) !== topic.sha256) errors.push(`Current source changed outside publisher: ${topic.path}`);
+    if (authoritySha256(content) !== topic.sha256) errors.push(`Current source changed outside publisher: ${topic.path}`);
     const currentMetadata = parseFrontmatter(content);
     if (currentMetadata["authority-topic"] && slugify(currentMetadata["authority-topic"]) !== topic.topic) errors.push(`Current topic metadata does not match registry: ${topic.path}`);
     if (currentMetadata["authority-scope"]) {
@@ -2090,9 +2302,9 @@ export async function checkProject(root) {
     const evidenceMarkdown = await readText(path.join(root, topic.evidencePath), null);
     const evidenceData = await readText(path.join(root, topic.evidenceDataPath), null);
     if (evidenceMarkdown === null) errors.push(`Missing Evidence Markdown for ${topicId}: ${topic.evidencePath}`);
-    else if (sha256(evidenceMarkdown) !== topic.evidenceSha256) errors.push(`Evidence Markdown changed outside publisher: ${topic.evidencePath}`);
+    else if (authoritySha256(evidenceMarkdown) !== topic.evidenceSha256) errors.push(`Evidence Markdown changed outside publisher: ${topic.evidencePath}`);
     if (evidenceData === null) errors.push(`Missing Evidence data for ${topicId}: ${topic.evidenceDataPath}`);
-    else if (sha256(evidenceData) !== topic.evidenceDataSha256) errors.push(`Evidence data changed outside publisher: ${topic.evidenceDataPath}`);
+    else if (authoritySha256(evidenceData) !== topic.evidenceDataSha256) errors.push(`Evidence data changed outside publisher: ${topic.evidenceDataPath}`);
     try {
       const chain = await readEvidenceChain(root, topic);
       if (!chain.length || chain[0].revision !== topic.revision) errors.push(`Evidence head revision does not match current topic ${topicId}.`);
@@ -2105,14 +2317,14 @@ export async function checkProject(root) {
           if (!sourcePath) continue;
           const sourceContent = await readText(path.join(root, sourcePath), null);
           if (sourceContent === null) warnings.push(`Evidence source is unavailable for ${topicId}: ${sourcePath}`);
-          else if (source.sha256 && sha256(sourceContent) !== source.sha256) errors.push(`Evidence source hash mismatch for ${topicId}: ${sourcePath}`);
+          else if (source.sha256 && !textHashMatches(sourceContent, source.sha256)) errors.push(`Evidence source hash mismatch for ${topicId}: ${sourcePath}`);
         }
       }
       for (const amendment of topic.evidenceAmendments || []) {
         const markdown = await readText(path.join(root, amendment.path), null);
         const data = await readText(path.join(root, amendment.dataPath), null);
-        if (markdown === null || sha256(markdown) !== amendment.sha256) errors.push(`Evidence amendment Markdown integrity failed: ${amendment.path}`);
-        if (data === null || sha256(data) !== amendment.dataSha256) errors.push(`Evidence amendment data integrity failed: ${amendment.dataPath}`);
+        if (markdown === null || authoritySha256(markdown) !== amendment.sha256) errors.push(`Evidence amendment Markdown integrity failed: ${amendment.path}`);
+        if (data === null || authoritySha256(data) !== amendment.dataSha256) errors.push(`Evidence amendment data integrity failed: ${amendment.dataPath}`);
         if (data !== null) {
           const parsed = JSON.parse(data);
           const targetRevision = chain.find((record) => record.revision === parsed.authorityRevision);
@@ -2157,7 +2369,7 @@ export async function checkProject(root) {
   }
   const expectedIndex = buildAuthorityIndex(registry);
   const actualIndex = await readText(path.join(root, INDEX_RELATIVE), "");
-  if (actualIndex !== expectedIndex) errors.push(`${INDEX_RELATIVE} is out of sync with the registry.`);
+  if (canonicalAuthorityText(actualIndex) !== expectedIndex) errors.push(`${INDEX_RELATIVE} is out of sync with the registry.`);
   const pendingEntrypoints = await readJson(path.join(root, ".authority", "pending-entrypoints.json"), []);
   for (const filename of ["AGENTS.md", "CLAUDE.md"]) {
     const content = await readText(path.join(root, filename), "");
@@ -2179,7 +2391,7 @@ export async function checkProject(root) {
       for (const archived of manifest.entries || []) {
         const content = await readText(path.join(root, archived.archivePath), null);
         if (content === null) errors.push(`Missing archived legacy source: ${archived.archivePath}`);
-        else if (sha256(content) !== archived.sha256) errors.push(`Archived legacy source hash mismatch: ${archived.archivePath}`);
+        else if (!textHashMatches(content, archived.sha256)) errors.push(`Archived legacy source hash mismatch: ${archived.archivePath}`);
       }
     }
   }
@@ -2213,6 +2425,7 @@ function printHelp() {
     `  mdg status [project]\n` +
     `  mdg scan [project]\n` +
     `  mdg context [path] [--json] [--project PATH]\n` +
+    `  mdg reconcile [path] [--since GIT_REF] [--limit N] [--json] [--project PATH]\n` +
     `  mdg resolve <topic> [--path PATH] [--project PATH]\n` +
     `  mdg explain <topic> [--path PATH] [--item R-001] [--revision N] [--history] [--json]\n` +
     `  mdg evidence amend <topic> --item R-001 --reason TEXT --approve [--path PATH]\n` +
@@ -2251,6 +2464,17 @@ export async function runCli(argv) {
       preview: options.preview === true || options.preview === "true",
       setupOnly: options.setupOnly === true || options.setupOnly === "true"
     });
+    if (!options.preview && !options.setupOnly) {
+      try {
+        const registry = await loadRegistry(result.root);
+        if (registry.revision > 0) {
+          const observation = await reconcileCodeState(result.root, ".", { limit: 50 });
+          result.implementation = { status: observation.summary.status, mode: observation.mode, candidateCount: observation.summary.candidateCount, report: observation.report };
+        }
+      } catch (error) {
+        result.implementation = { status: "unavailable", error: error.message };
+      }
+    }
     console.log(JSON.stringify(result, null, 2));
     return;
   }
@@ -2336,7 +2560,7 @@ export async function runCli(argv) {
     console.log(JSON.stringify(await doctorReviewers(options.project || process.cwd()), null, 2));
     return;
   }
-  const rootArg = options.project || (["resolve", "context", "explain", "propose", "publish"].includes(command) ? process.cwd() : positional[0] || process.cwd());
+  const rootArg = options.project || (["resolve", "context", "reconcile", "explain", "propose", "publish"].includes(command) ? process.cwd() : positional[0] || process.cwd());
   if (command === "sync") {
     const registry = await syncProject(rootArg);
     console.log(`Synchronized registry revision ${registry.revision}.`);
@@ -2386,6 +2610,11 @@ export async function runCli(argv) {
   if (command === "context") {
     const result = await contextForPath(rootArg, positional[0] || ".");
     console.log(JSON.stringify(options.json ? result : result.authorities, null, 2));
+    return;
+  }
+  if (command === "reconcile") {
+    const result = await reconcileCodeState(rootArg, positional[0] || ".", { since: options.since, limit: options.limit });
+    console.log(JSON.stringify(result, null, 2));
     return;
   }
   if (command === "explain") {

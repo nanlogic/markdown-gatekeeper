@@ -24,6 +24,12 @@ Keep successful Gatekeeper bootstrap and housekeeping invisible in routine respo
 
 Use `mdg resolve <topic> --path <working-path>` for one topic. Do not read Evidence during routine work; use `mdg explain <topic> --item <rule-id>` only for provenance, conflict investigation, or audit.
 
+## Reconcile implementation
+
+When a task depends on existing implementation behavior or will change code, tests, schemas, configuration, or scenes, run `mdg reconcile <working-path> --json` and inspect the returned files before planning. The first run establishes a baseline; later runs prioritize committed and working-tree changes since the previous snapshot.
+
+Treat reconciliation output as non-normative implementation observation. Classify a material relationship only after reading the relevant implementation and Current authority: `aligned`, `code-ahead`, `doc-ahead`, `conflict`, or `unverifiable`. Tests, executable schemas, and effective configuration are stronger implementation signals than comments or document dates. Code that is newer may justify a proposal, but it never silently replaces Current. Surface only drift that affects the task or needs owner judgment.
+
 ## Mutating authority
 
 - Register competing work with `mdg propose`.
