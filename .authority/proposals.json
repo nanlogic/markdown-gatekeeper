@@ -47,9 +47,9 @@
     "status": "published",
     "sha256": "7e78ca5254ab73cbe57ff8826643db72633e90581951340f633886dfad032d95",
     "createdAt": "2026-08-19T00:46:30.084Z",
-    "publishedAt": "2026-08-19T00:46:30.158Z",
-    "publishedRevision": 1,
-    "archivePath": ".authority/archive/proposals/1787100390171-legacy-agent-document-adoption.md"
+    "publishedAt": "2026-09-02T01:07:19.683Z",
+    "publishedRevision": 7,
+    "archivePath": ".authority/archive/proposals/1788311239503-legacy-agent-document-adoption.md"
   },
   {
     "id": "1787102752619-codex-skill-integration",
@@ -60,9 +60,9 @@
     "status": "published",
     "sha256": "82cef6de4f467e3fe5c229d8be7db6004d9cb53ca5ff9cc6a98262909540c888",
     "createdAt": "2026-08-19T01:25:52.620Z",
-    "publishedAt": "2026-08-19T01:25:52.808Z",
-    "publishedRevision": 1,
-    "archivePath": ".authority/archive/proposals/1787102752694-codex-skill-integration.md"
+    "publishedAt": "2026-09-02T01:07:20.017Z",
+    "publishedRevision": 5,
+    "archivePath": ".authority/archive/proposals/1788311239844-codex-skill-integration.md"
   },
   {
     "id": "1787106455037-codex-skill-integration",
@@ -180,5 +180,31 @@
     "publishedAt": "2026-08-22T23:15:10.114Z",
     "publishedRevision": 1,
     "archivePath": ".authority/archive/proposals/1787440509994-code-reconciliation.md"
+  },
+  {
+    "id": "1787662838154-legacy-agent-document-adoption",
+    "path": "docs/proposals/legacy-agent-document-adoption.md",
+    "title": "Legacy Agent Document Adoption",
+    "topic": "legacy-agent-document-adoption",
+    "baseRevision": null,
+    "status": "published",
+    "sha256": "c35883d1643e523b1143aa3637a879ee81020e25306d5f52843320a131d14222",
+    "createdAt": "2026-08-25T13:00:38.155Z",
+    "publishedAt": "2026-09-02T01:07:19.683Z",
+    "publishedRevision": 7,
+    "archivePath": ".authority/archive/proposals/1788311239503-legacy-agent-document-adoption.md"
+  },
+  {
+    "id": "1787662838428-agent-host-skill-integration",
+    "path": "docs/proposals/codex-skill-integration.md",
+    "title": "Agent Host Skill Integration",
+    "topic": "codex-skill-integration",
+    "baseRevision": null,
+    "status": "published",
+    "sha256": "87b09f2af262ed40b240aecd13826f2cd1177c60da60ae9314d08d57bfba8068",
+    "createdAt": "2026-08-25T13:00:38.429Z",
+    "publishedAt": "2026-09-02T01:07:20.017Z",
+    "publishedRevision": 5,
+    "archivePath": ".authority/archive/proposals/1788311239844-codex-skill-integration.md"
   }
 ]

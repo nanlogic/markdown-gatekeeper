@@ -10,15 +10,25 @@ This repository is the first dogfood implementation. It intentionally has no clo
 
 ## Quick start
 
-Install the CLI and its paired Codex Skill:
+Until the npm registry release is available, install the CLI directly from GitHub:
 
 ```powershell
-npm install -g markdown-gatekeeper
+npm install -g github:nanlogic/markdown-gatekeeper
+```
+
+After the package is published to npm, the equivalent command is `npm install -g markdown-gatekeeper`.
+
+Install the matching Skill and bootstrap for the Agent host you use:
+
+```powershell
 mdg setup codex
+mdg setup claude
 mdg setup status
 ```
 
-During local development, use `npm link` in this repository instead of installing from the registry. `mdg setup codex` copies the bundled Skill into `$CODEX_HOME/skills/markdown-gatekeeper` (or `~/.codex/skills/markdown-gatekeeper`), installs a stable launcher under `$CODEX_HOME/bin`, and maintains a bounded bootstrap block in `$CODEX_HOME/AGENTS.md`. The launcher uses absolute Node and package paths, so Codex GUI sessions on macOS do not depend on npm's global executable directory being present in `PATH`. Every new Codex task then detects managed projects and invokes the Skill automatically, while unrelated global instructions and unmanaged projects are left alone.
+Run only the setup command for hosts you have installed. `mdg setup codex` manages the Skill, launcher, and bootstrap under `$CODEX_HOME` or `~/.codex`; `mdg setup claude` does the same under `$CLAUDE_CONFIG_DIR` or `~/.claude`. Each host keeps its own native instruction file and launcher. The launchers use absolute Node and package paths, so GUI sessions do not depend on npm's global executable directory being present in `PATH`.
+
+During local development, use `npm link` in this repository instead of installing globally from GitHub. New Codex tasks and Claude Code sessions then detect managed projects automatically, while unrelated global instructions and unmanaged projects are left alone.
 
 Initialize and organize an existing project with one command:
 
@@ -26,9 +36,9 @@ Initialize and organize an existing project with one command:
 mdg init .
 ```
 
-`mdg init .` is zero-touch: it completes discovery, review, safe high-confidence publication, archiving, Evidence, and integrity checks without another confirmation. It prefers an isolated Codex CLI, enforces a three-minute reviewer timeout, and falls back to the current Codex Session when that CLI cannot run; cross-vendor reviewers are later fallbacks. `--preview` performs classification and archive-risk reporting without review or publication, while `--setup-only` installs only the protocol.
+`mdg init .` is zero-touch: it completes discovery, review, safe high-confidence publication, archiving, Evidence, and integrity checks without another confirmation. It prefers an isolated Codex CLI, enforces a three-minute reviewer timeout, and can fall back to the current Codex or Claude Code Session when the command is started with `--host-session codex` or `--host-session claude`. Other configured reviewers are later fallbacks. `--preview` performs classification and archive-risk reporting without review or publication, while `--setup-only` installs only the protocol.
 
-After installation, routine Codex Sessions use Gatekeeper silently. If a managed project still has registry revision zero or pending legacy entrypoints, Session bootstrap automatically resumes adoption. Successful housekeeping is not shown to the user; owner buttons appear only when the current task actually depends on unresolved product intent. Bootstrap calls the installed global `mdg` command directly and only uses a verified repository-local fallback, so normal Sessions do not display avoidable failed-command detours.
+After installation, routine Agent sessions use Gatekeeper silently. If a managed project still has registry revision zero or pending legacy entrypoints, the host-specific bootstrap automatically resumes adoption. Successful housekeeping is not shown to the user; owner review appears only when the current task actually depends on unresolved product intent. Bootstrap calls the installed global `mdg` command directly and only uses a verified host launcher or repository-local fallback.
 
 ```powershell
 node .\bin\mdg.mjs status .
@@ -78,8 +88,9 @@ The LLM acts as a semantic reviewer. The publisher, not the LLM, owns the state 
 | `mdg adopt` | Discover, review, decide, apply, and restore legacy Agent documents |
 | `mdg owner set` | Assign a per-scope topic owner with Git identity audit |
 | `mdg doctor reviewers` | Check Codex, Claude, and configured reviewer adapters |
-| `mdg setup codex` | Install or update the CLI-matched Codex Skill |
-| `mdg setup status` | Report CLI and Codex Skill versions and paths |
+| `mdg setup codex` | Install or update the Codex Skill, launcher, and bootstrap |
+| `mdg setup claude` | Install or update the Claude Code Skill, launcher, and bootstrap |
+| `mdg setup status` | Report installation versions and paths for both hosts |
 | `mdg sync` | Regenerate adapters and authority index |
 | `mdg check` | Detect direct edits and registry drift |
 

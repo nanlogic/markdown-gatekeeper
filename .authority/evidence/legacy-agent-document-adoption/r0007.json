@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "legacy-agent-document-adoption",
+  "scope": ".",
+  "title": "Legacy Agent Document Adoption",
+  "revision": 7,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "de8c8b8ff81356a8fff45b5ce4f2255c77b27d6e1ea68b9517aa43bb5f65e732",
+  "baseCurrentSha256": "52433636e47d5b3af10ee4f56226ac904595789c45c1a5865d2b4c18029eac19",
+  "previousEvidencePath": ".authority/evidence/legacy-agent-document-adoption/r0006.md",
+  "previousEvidenceSha256": "b4be6f3e68ddb8695dd8f32baaaf543d9ecc4a75ac224a78456e2c1bb64803fa",
+  "previousEvidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0006.json",
+  "previousEvidenceDataSha256": "1d2da126093551e111c9b0c59c06749b6713511bc52a9f76ba9c0389e9169156",
+  "changes": [
+    {
+      "item": "R-006",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "A reviewer classifies topics, scopes, sources, conflicts, and confidence. An isolated Codex CLI is preferred; when it cannot run, the current Session of any supported Agent host may review the same explicitly delimited untrusted-source bundle and submit schema-valid output. Reviewer output remains untrusted structured input and never receives canonical write authority.",
+      "previousText": "A reviewer classifies topics, scopes, sources, conflicts, and confidence. An isolated Codex CLI is preferred; when it cannot run, the current Codex Session may review the same explicitly delimited untrusted-source bundle and submit schema-valid output. Reviewer output remains untrusted structured input and never receives canonical write authority."
+    },
+    {
+      "item": "R-019",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Reviewer selection order is the same for every supported Agent host: isolated Codex CLI, then the current host Session, then an explicitly configured fallback reviewer. A broken WindowsApps Codex executable must not silently cause a cross-vendor fallback while the current Session is capable of reviewing.",
+      "previousText": "Reviewer selection order in a Codex-hosted workflow is isolated Codex CLI, then the current Codex Session, then an explicitly configured fallback reviewer. A broken WindowsApps Codex executable must not silently cause a cross-vendor fallback while the current Codex Session is capable of reviewing."
+    },
+    {
+      "item": "R-028",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`--host-session` names the Agent host that is running the command and accepts every supported host id, currently `codex` and `claude`. It must never be interpreted as a Codex-only switch, and a valueless `--host-session` is a usage error rather than a silent no-op."
+    },
+    {
+      "item": "R-029",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "A declared host session is what authorizes the current-Session reviewer fallback. Any declared host may complete the review handoff through `mdg adopt session-review`; only an undeclared host session leaves the run without that fallback."
+    },
+    {
+      "item": "R-030",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`--yes` is an explicit, documented confirmation flag for `mdg init`. It restates the zero-touch default, and combining it with `--preview` or `--setup-only` is a usage error rather than a silently ignored contradiction."
+    },
+    {
+      "item": "R-031",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Generated bootstrap instructions must name the host they are written for. A host entrypoint or global bootstrap must cite that host's own `--host-session` value and its own managed launcher directory, never another host's."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/legacy-agent-document-adoption.md",
+      "archivePath": ".authority/archive/proposals/1788311239503-legacy-agent-document-adoption.md",
+      "sha256": "c35883d1643e523b1143aa3637a879ee81020e25306d5f52843320a131d14222",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-09-02T01:07:19.680Z"
+}

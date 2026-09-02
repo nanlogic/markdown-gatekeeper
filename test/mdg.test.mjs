@@ -9,10 +9,13 @@ import { fileURLToPath } from "node:url";
 import {
   MANAGED_START,
   GLOBAL_MANAGED_START,
+  agentLauncherSpec,
+  agentSkillStatus,
   amendEvidence,
   applyAdoption,
   automaticAdoption,
   checkProject,
+  chooseReviewer,
   codexSkillStatus,
   codexLauncherSpec,
   contextForPath,
@@ -20,7 +23,9 @@ import {
   explainTopic,
   initProject,
   initializeAndAdopt,
+  installAgentSkill,
   installCodexSkill,
+  managedBlock,
   ownerReview,
   proposeDocument,
   publishDocument,
@@ -28,6 +33,7 @@ import {
   restoreAdoption,
   resolveTopic,
   reviewAdoption,
+  runCli,
   scanProject,
   startAdoption,
   submitSessionReview,
@@ -37,6 +43,7 @@ import {
 } from "../src/mdg.mjs";
 
 const repositoryRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const packageVersion = JSON.parse(await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")).version;
 
 async function temporaryProject(name = "test-project") {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-"));
@@ -624,14 +631,14 @@ test("Codex Skill installs from the CLI bundle and protects unmanaged skills", a
   const installed = await installCodexSkill({ codexHome: home });
   assert.equal(installed.installed, true);
   assert.equal(installed.managed, true);
-  assert.equal(installed.installedVersion, "0.7.0");
+  assert.equal(installed.installedVersion, packageVersion);
   assert.equal(installed.globalBootstrapInstalled, true);
   assert.equal(installed.launcherInstalled, true);
   assert.match(await fs.readFile(installed.launcherPath, "utf8"), /markdown-gatekeeper:managed-launcher/);
   const skill = await fs.readFile(path.join(home, "skills", "markdown-gatekeeper", "SKILL.md"), "utf8");
   assert.match(skill, /mdg context/);
   assert.match(skill, /Do not send separate commentary/);
-  assert.equal((await codexSkillStatus({ codexHome: home })).cliVersion, "0.7.0");
+  assert.equal((await codexSkillStatus({ codexHome: home })).cliVersion, packageVersion);
   const globalInstructions = await fs.readFile(path.join(home, "AGENTS.md"), "utf8");
   assert.match(globalInstructions, /Keep this personal instruction\./);
   assert.equal(globalInstructions.split(GLOBAL_MANAGED_START).length - 1, 1);
@@ -667,4 +674,97 @@ test("Codex setup protects an unmanaged stable launcher", async (t) => {
   await assert.rejects(installCodexSkill({ codexHome: home }), /Refusing to overwrite unmanaged Codex launcher/);
   const forced = await installCodexSkill({ codexHome: home, force: true });
   assert.equal(forced.launcherInstalled, true);
+});
+
+test("any managed host session may review when an isolated CLI is unavailable", async (t) => {
+  const root = await temporaryProject();
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const offline = [{ reviewer: "codex", available: false }, { reviewer: "claude", available: false }];
+  assert.equal(await chooseReviewer(root, null, "claude", offline), "current-session");
+  assert.equal(await chooseReviewer(root, null, "codex", offline), "current-session");
+  assert.equal(await chooseReviewer(root, null, null, offline), null);
+  const isolated = [{ reviewer: "codex", available: true }, { reviewer: "claude", available: true }];
+  assert.equal(await chooseReviewer(root, null, "claude", isolated), "codex");
+  assert.equal(await chooseReviewer(root, "current-session", "claude", isolated), "current-session");
+});
+
+test("current Claude Code Session completes zero-touch adoption", async (t) => {
+  const root = await temporaryProject();
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.writeFile(path.join(root, "claude-session-rules.md"), "# Claude Session Rules\n\nRun checks.\n", "utf8");
+  const requested = await initializeAndAdopt(root, { reviewer: "current-session", hostSession: "claude" });
+  assert.equal(requested.status, "session-review-required");
+  const manifest = JSON.parse(await fs.readFile(path.join(root, ".authority", "adoptions", requested.runId, "manifest.json"), "utf8"));
+  const source = manifest.sources.find((item) => item.path === "claude-session-rules.md");
+  const result = { topics: [{
+    decisionId: "claude-session-rules", topic: "claude-session-rules", scope: ".", title: "Claude Session Rules", confidence: "high", requiresOwner: false,
+    summary: "Clear rule reviewed by the current Claude Code session.", sources: [source.id], currentMarkdown: "# Claude Session Rules\n\n## Current rules\n\n- R-001 — Run checks.\n",
+    changes: [{ item: "R-001", change: "selected", sources: [source.id], reason: "Explicit rule.", confidence: "high" }]
+  }] };
+  await fs.writeFile(path.join(root, requested.result), `${JSON.stringify(result, null, 2)}\n`, "utf8");
+  await submitSessionReview(root, requested.runId, requested.result);
+  const completed = await automaticAdoption(root, requested.runId, { hostSession: "claude", confirmed: true, confirmationMode: "current-session" });
+  assert.equal(completed.status, "complete");
+  assert.equal(completed.reviewer, "current-session");
+  assert.deepEqual(completed.accepted, ["claude-session-rules"]);
+  assert.equal(completed.check.ok, true, completed.check.errors.join("\n"));
+});
+
+test("project entrypoints carry host-specific bootstrap instructions", async (t) => {
+  const root = await temporaryProject("host-specific-entrypoints");
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const agents = await fs.readFile(path.join(root, "AGENTS.md"), "utf8");
+  const claude = await fs.readFile(path.join(root, "CLAUDE.md"), "utf8");
+  assert.match(agents, /--host-session codex --yes/);
+  assert.match(agents, /<Codex home>\/bin\/mdg/);
+  assert.match(claude, /--host-session claude --yes/);
+  assert.match(claude, /<Claude home>\/bin\/mdg/);
+  assert.doesNotMatch(claude, /--host-session codex/);
+  await syncProject(root);
+  assert.equal(await fs.readFile(path.join(root, "CLAUDE.md"), "utf8"), claude);
+  assert.match(managedBlock("claude"), /--host-session claude --yes/);
+});
+
+test("Claude Code setup installs the Skill, launcher, and global bootstrap", async (t) => {
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-claude-"));
+  t.after(() => fs.rm(home, { recursive: true, force: true }));
+  await fs.writeFile(path.join(home, "CLAUDE.md"), "# Global Claude Instructions\n\nKeep this personal instruction.\n", "utf8");
+  const installed = await installAgentSkill("claude", { claudeHome: home });
+  assert.equal(installed.host, "claude");
+  assert.equal(installed.installed, true);
+  assert.equal(installed.managed, true);
+  assert.equal(installed.launcherInstalled, true);
+  assert.equal(installed.globalBootstrapInstalled, true);
+  assert.equal(installed.globalInstructionsPath, path.join(home, "CLAUDE.md"));
+  assert.equal(installed.skillPath, path.join(home, "skills", "markdown-gatekeeper"));
+  const globalInstructions = await fs.readFile(path.join(home, "CLAUDE.md"), "utf8");
+  assert.match(globalInstructions, /Keep this personal instruction\./);
+  assert.match(globalInstructions, /At the start of every Claude Code session/);
+  assert.match(globalInstructions, /--host-session claude --yes/);
+  assert.match(globalInstructions, /<Claude home>\/bin\/mdg/);
+  assert.equal(globalInstructions.split(GLOBAL_MANAGED_START).length - 1, 1);
+  await installAgentSkill("claude", { claudeHome: home });
+  assert.equal(await fs.readFile(path.join(home, "CLAUDE.md"), "utf8"), globalInstructions);
+  assert.equal((await agentSkillStatus("claude", { claudeHome: home })).installedVersion, installed.installedVersion);
+  assert.equal(await fs.readFile(path.join(home, "AGENTS.md"), "utf8").catch(() => null), null);
+});
+
+test("Claude Code setup protects an unmanaged skill and launcher", async (t) => {
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), "markdown-gatekeeper-claude-guard-"));
+  t.after(() => fs.rm(home, { recursive: true, force: true }));
+  const launcher = agentLauncherSpec("claude", { claudeHome: home });
+  assert.equal(launcher.path, path.join(home, "bin", process.platform === "win32" ? "mdg.cmd" : "mdg"));
+  await fs.mkdir(path.dirname(launcher.path), { recursive: true });
+  await fs.writeFile(launcher.path, "user-managed launcher\n", "utf8");
+  await assert.rejects(installAgentSkill("claude", { claudeHome: home }), /Refusing to overwrite unmanaged Claude Code launcher/);
+  assert.equal((await installAgentSkill("claude", { claudeHome: home, force: true })).launcherInstalled, true);
+  await assert.rejects(installAgentSkill("cursor", { claudeHome: home }), /Unsupported agent host/);
+});
+
+test("init rejects contradictory confirmation flags and a valueless host session", async (t) => {
+  const root = await temporaryProject("init-flag-validation");
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await assert.rejects(runCli(["init", root, "--yes", "--preview"]), /--yes cannot be combined with --preview or --setup-only/);
+  await assert.rejects(runCli(["init", root, "--yes", "--setup-only"]), /--yes cannot be combined with --preview or --setup-only/);
+  await assert.rejects(runCli(["init", root, "--host-session"]), /--host-session requires a value/);
 });

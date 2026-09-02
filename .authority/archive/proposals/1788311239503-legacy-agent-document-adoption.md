@@ -1,10 +1,3 @@
----
-authority-topic: legacy-agent-document-adoption
-authority-scope: .
-authority-owner: Wayne
-authority-revision: 7
----
-
 # Legacy Agent Document Adoption
 
 ## Current rules

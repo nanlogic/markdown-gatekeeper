@@ -4,7 +4,7 @@
     "name": "Markdown Gatekeeper",
     "owner": "Wayne"
   },
-  "revision": 14,
+  "revision": 16,
   "topics": {
     "product-definition": {
       "title": "Product Definition",
@@ -63,48 +63,48 @@
       "scope": ".",
       "status": "current",
       "path": "docs/current/legacy-agent-document-adoption.md",
-      "revision": 6,
-      "sha256": "52433636e47d5b3af10ee4f56226ac904595789c45c1a5865d2b4c18029eac19",
-      "evidencePath": ".authority/evidence/legacy-agent-document-adoption/r0006.md",
-      "evidenceSha256": "b4be6f3e68ddb8695dd8f32baaaf543d9ecc4a75ac224a78456e2c1bb64803fa",
-      "evidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0006.json",
-      "evidenceDataSha256": "1d2da126093551e111c9b0c59c06749b6713511bc52a9f76ba9c0389e9169156",
+      "revision": 7,
+      "sha256": "de8c8b8ff81356a8fff45b5ce4f2255c77b27d6e1ea68b9517aa43bb5f65e732",
+      "evidencePath": ".authority/evidence/legacy-agent-document-adoption/r0007.md",
+      "evidenceSha256": "58c3b79e61c2ca8800caaa06fbbb99bae24f3fe3ed3ff936b3b8562a6e2ae83d",
+      "evidenceDataPath": ".authority/evidence/legacy-agent-document-adoption/r0007.json",
+      "evidenceDataSha256": "efb93b3a178f5013d0d654bfdddb4d720b2220ce7b277a2f009fbefac345dac0",
       "evidenceStatus": "complete",
       "owner": "Wayne",
-      "updatedAt": "2026-08-19T11:16:43.594Z",
+      "updatedAt": "2026-09-02T01:07:19.683Z",
       "adoptionRun": null,
       "decisionId": null,
       "supersedes": {
         "path": "docs/current/legacy-agent-document-adoption.md",
-        "revision": 5,
-        "sha256": "3aecb896fc45a26215ce81297ea3c5eea768d34bc558d840fcc6591736afc9ed",
-        "evidencePath": ".authority/evidence/legacy-agent-document-adoption/r0005.md",
-        "evidenceSha256": "357b5863c2d03a8e926fdf9bf614852c3a779d2c9ff01484150fd8b6df318093"
+        "revision": 6,
+        "sha256": "52433636e47d5b3af10ee4f56226ac904595789c45c1a5865d2b4c18029eac19",
+        "evidencePath": ".authority/evidence/legacy-agent-document-adoption/r0006.md",
+        "evidenceSha256": "b4be6f3e68ddb8695dd8f32baaaf543d9ecc4a75ac224a78456e2c1bb64803fa"
       }
     },
     "codex-skill-integration": {
-      "title": "Codex Skill Integration",
+      "title": "Agent Host Skill Integration",
       "topic": "codex-skill-integration",
       "scope": ".",
       "status": "current",
       "path": "docs/current/codex-skill-integration.md",
-      "revision": 4,
-      "sha256": "6fa55c4d635616e293b0a8ea9d88ee956111728e9affb336587be7b19f09fcb3",
-      "evidencePath": ".authority/evidence/codex-skill-integration/r0004.md",
-      "evidenceSha256": "7a960cb1c66c765bd3979c661023a719b08324a3766673329c3169c80c6313c8",
-      "evidenceDataPath": ".authority/evidence/codex-skill-integration/r0004.json",
-      "evidenceDataSha256": "569eea9b4a0abd210e803d9315cf22899405cd3c14eee8f719a838354ebaae7d",
+      "revision": 5,
+      "sha256": "4d3b262ebedd9ea42606a622a4af898d6f633945c749447f5fa0508035949a9b",
+      "evidencePath": ".authority/evidence/codex-skill-integration/r0005.md",
+      "evidenceSha256": "a7c8599fa7f37b546321a9051bf4840f6c3dd0f777702a9b18e183eac48a8a13",
+      "evidenceDataPath": ".authority/evidence/codex-skill-integration/r0005.json",
+      "evidenceDataSha256": "42c51dbd1e08791bef1943681948e0d51da4284ae4e5e5c0e412f3643ac424be",
       "evidenceStatus": "complete",
       "owner": "Wayne",
-      "updatedAt": "2026-08-20T00:06:45.626Z",
+      "updatedAt": "2026-09-02T01:07:20.017Z",
       "adoptionRun": null,
       "decisionId": null,
       "supersedes": {
         "path": "docs/current/codex-skill-integration.md",
-        "revision": 3,
-        "sha256": "b1c1d0c2695c5a8cd5ebfae5cce052a0268cd56078954a20dbfbe0ab386f0d24",
-        "evidencePath": ".authority/evidence/codex-skill-integration/r0003.md",
-        "evidenceSha256": "8d275926e677c1a520e9422a41f3851a46b029de16fa13558ff2473a075b5d94"
+        "revision": 4,
+        "sha256": "6fa55c4d635616e293b0a8ea9d88ee956111728e9affb336587be7b19f09fcb3",
+        "evidencePath": ".authority/evidence/codex-skill-integration/r0004.md",
+        "evidenceSha256": "7a960cb1c66c765bd3979c661023a719b08324a3766673329c3169c80c6313c8"
       }
     },
     "code-reconciliation": {
@@ -127,5 +127,5 @@
       "supersedes": null
     }
   },
-  "updatedAt": "2026-08-22T23:15:10.114Z"
+  "updatedAt": "2026-09-02T01:07:20.017Z"
 }

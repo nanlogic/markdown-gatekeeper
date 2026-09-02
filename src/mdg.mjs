@@ -31,6 +31,53 @@ const IMPLEMENTATION_EXCLUDED_BASENAMES = new Set(["package-lock.json", "npm-shr
 const execFileAsync = promisify(execFile);
 
 const IGNORED_DIRS = new Set([".git", "node_modules", ".svn", ".hg", "dist", "build"]);
+
+const AGENT_HOSTS = {
+  codex: {
+    id: "codex",
+    label: "Codex",
+    homeEnvVar: "CODEX_HOME",
+    homeDirName: ".codex",
+    homeOptionKey: "codexHome",
+    homeLabel: "Codex home",
+    instructionsFile: "AGENTS.md",
+    instructionsTitle: "# Agent Instructions",
+    sessionNoun: "Codex task",
+    skillInvocation: "`$markdown-gatekeeper`"
+  },
+  claude: {
+    id: "claude",
+    label: "Claude Code",
+    homeEnvVar: "CLAUDE_CONFIG_DIR",
+    homeDirName: ".claude",
+    homeOptionKey: "claudeHome",
+    homeLabel: "Claude home",
+    instructionsFile: "CLAUDE.md",
+    instructionsTitle: "# Claude Instructions",
+    sessionNoun: "Claude Code session",
+    skillInvocation: "the `markdown-gatekeeper` Skill"
+  }
+};
+const AGENT_HOST_IDS = Object.keys(AGENT_HOSTS);
+const ENTRYPOINT_HOSTS = AGENT_HOST_IDS.map((id) => ({ filename: AGENT_HOSTS[id].instructionsFile, host: id }));
+
+export function normalizeHostSession(value) {
+  if (value === true || value === undefined || value === null) return null;
+  const id = String(value).trim().toLowerCase();
+  return id ? id : null;
+}
+
+export function agentHostSpec(host) {
+  const id = normalizeHostSession(host) || "codex";
+  const spec = AGENT_HOSTS[id];
+  if (!spec) throw new Error(`Unsupported agent host: ${host}. Supported hosts: ${AGENT_HOST_IDS.join(", ")}.`);
+  return spec;
+}
+
+export function entrypointHost(relative) {
+  const basename = path.posix.basename(normalizeSlashes(String(relative))).toLowerCase();
+  return ENTRYPOINT_HOSTS.find((entry) => entry.filename.toLowerCase() === basename)?.host || "codex";
+}
 const ENTRYPOINT_FILES = new Set(["AGENTS.md", "CLAUDE.md", "PROJECT_AUTHORITY.md", "README.md"]);
 
 function normalizeSlashes(value) {
@@ -160,15 +207,16 @@ export function firstHeading(content, fallback = "Untitled") {
   return match ? match[1].trim() : fallback;
 }
 
-export function managedBlock() {
+export function managedBlock(host = "codex") {
+  const spec = agentHostSpec(host);
   return `${MANAGED_START}\n## Markdown Gatekeeper protocol\n\n` +
     `This project dogfoods Markdown Gatekeeper. Before planning or implementation:\n\n` +
     `1. Read \`PROJECT_AUTHORITY.md\` and the current sources it names.\n` +
-    `2. Run \`mdg status .\`. If the global command is unavailable, use the managed launcher at \`<Codex home>/bin/mdg\` (or \`mdg.cmd\` on Windows). Only if that launcher is unavailable, first verify that \`./bin/mdg.mjs\` exists and then use \`node ./bin/mdg.mjs\`; do not run a predictable failing command to probe availability.\n` +
+    `2. Run \`mdg status .\`. If the global command is unavailable, use the managed launcher at \`<${spec.homeLabel}>/bin/mdg\` (or \`mdg.cmd\` on Windows). Only if that launcher is unavailable, first verify that \`./bin/mdg.mjs\` exists and then use \`node ./bin/mdg.mjs\`; do not run a predictable failing command to probe availability.\n` +
     `3. Treat unregistered Markdown as a proposal, never as current authority.\n` +
     `4. Put competing designs in \`docs/proposals/\`; do not create a second canonical source.\n` +
     `5. Never edit \`PROJECT_AUTHORITY.md\`, \`.authority/registry.json\`, or \`docs/current/**\` directly. Use the publisher command.\n` +
-    `6. If status reports registry revision 0 or pending legacy entrypoints, automatically run \`mdg init . --host-session codex --yes\` (or the repository-local CLI) and complete any current-session review handoff without asking the user to repeat initialization.\n` +
+    `6. If status reports registry revision 0 or pending legacy entrypoints, automatically run \`mdg init . --host-session ${spec.id} --yes\` (or the repository-local CLI) and complete any current-session review handoff without asking the user to repeat initialization.\n` +
     `7. Run \`mdg check .\` before declaring authority-related work complete, using the verified local fallback only when necessary.\n\n` +
     `Use \`mdg context <path>\` for scoped authority. Evidence under \`.authority/evidence/\` is audit-only; read it through \`mdg explain\` only when troubleshooting.\n\n` +
     `When a task depends on implementation behavior or changes code, tests, schemas, configuration, or scenes, run \`mdg reconcile <working-path> --json\` and inspect the relevant returned files. Reconciliation is non-normative: code may produce a proposal but never silently replaces Current.\n\n` +
@@ -188,17 +236,22 @@ export function upsertManagedBlock(existing, block = managedBlock()) {
   return `${prefix ? `${prefix}\n\n` : ""}${block}\n`;
 }
 
-export function globalCodexBlock() {
+export function globalBootstrapBlock(host = "codex") {
+  const spec = agentHostSpec(host);
   return `${GLOBAL_MANAGED_START}\n## Markdown Gatekeeper session bootstrap\n\n` +
-    `At the start of every Codex task, search upward from the working directory for a project containing both \`PROJECT_AUTHORITY.md\` and \`.authority/registry.json\`.\n\n` +
-    `When both files exist, the project is managed: invoke \`$markdown-gatekeeper\` automatically without asking whether to use it, run \`mdg status .\` and the applicable \`mdg context <working-path>\`, then read the registered current sources before planning or implementation. If status reports registry revision 0 or pending legacy entrypoints, automatically resume zero-touch adoption with \`mdg init . --host-session codex --yes\` and complete any current-session review handoff without another user prompt. If \`mdg\` is unavailable, use the managed launcher at \`<Codex home>/bin/mdg\` (or \`mdg.cmd\` on Windows). Only if that launcher is unavailable, first verify that this repository contains \`./bin/mdg.mjs\` before using \`node ./bin/mdg.mjs\`; never run a predictable failing command merely to probe availability. Never bypass authority because a command is missing; report the blocker.\n\n` +
+    `At the start of every ${spec.sessionNoun}, search upward from the working directory for a project containing both \`PROJECT_AUTHORITY.md\` and \`.authority/registry.json\`.\n\n` +
+    `When both files exist, the project is managed: invoke ${spec.skillInvocation} automatically without asking whether to use it, run \`mdg status .\` and the applicable \`mdg context <working-path>\`, then read the registered current sources before planning or implementation. If status reports registry revision 0 or pending legacy entrypoints, automatically resume zero-touch adoption with \`mdg init . --host-session ${spec.id} --yes\` and complete any current-session review handoff without another user prompt. If \`mdg\` is unavailable, use the managed launcher at \`<${spec.homeLabel}>/bin/mdg\` (or \`mdg.cmd\` on Windows). Only if that launcher is unavailable, first verify that this repository contains \`./bin/mdg.mjs\` before using \`node ./bin/mdg.mjs\`; never run a predictable failing command merely to probe availability. Never bypass authority because a command is missing; report the blocker.\n\n` +
     `Successful bootstrap and housekeeping are silent. Do not narrate Skill activation, authority loading, internal commands, run IDs, reviewer selection, or fallback mechanics. If a progress update is required, combine bootstrap with the user's actual task in one short outcome-oriented sentence. Mention Gatekeeper only when it blocks the task, needs owner judgment, detects an integrity failure, or the user explicitly asks about its status.\n\n` +
     `When a task depends on implementation behavior or changes code, tests, schemas, configuration, or scenes, run \`mdg reconcile <working-path> --json\` and inspect the relevant returned files. Treat its output as non-normative implementation observation; code may produce a proposal but never silently replaces Current.\n\n` +
     `When the files do not exist, do nothing. Do not initialize or modify an unmanaged project and do not repeatedly suggest Gatekeeper unless the user asks for it.\n` +
     `${GLOBAL_MANAGED_END}`;
 }
 
-export function upsertGlobalCodexBlock(existing, block = globalCodexBlock()) {
+export function globalCodexBlock() {
+  return globalBootstrapBlock("codex");
+}
+
+export function upsertGlobalBootstrapBlock(existing, block = globalBootstrapBlock()) {
   const normalized = String(existing || "").replace(/\r\n/g, "\n");
   const start = normalized.indexOf(GLOBAL_MANAGED_START);
   const end = normalized.indexOf(GLOBAL_MANAGED_END);
@@ -214,6 +267,10 @@ export function upsertGlobalCodexBlock(existing, block = globalCodexBlock()) {
   }
   const prefix = normalized.trimEnd();
   return `${prefix ? `${prefix}\n\n` : "# Global Agent Instructions\n\n"}${block}\n`;
+}
+
+export function upsertGlobalCodexBlock(existing, block = globalBootstrapBlock("codex")) {
+  return upsertGlobalBootstrapBlock(existing, block);
 }
 
 export function defaultRegistry(projectName) {
@@ -407,14 +464,14 @@ export async function initProject(root, options = {}) {
 
   const pendingEntrypointsPath = path.join(authorityDir, "pending-entrypoints.json");
   const pendingEntrypoints = await readJson(pendingEntrypointsPath, []);
-  for (const filename of ["AGENTS.md", "CLAUDE.md"]) {
+  for (const { filename, host } of ENTRYPOINT_HOSTS) {
     const target = path.join(root, filename);
     const targetExists = await exists(target);
-    const existing = await readText(target, `# ${filename === "AGENTS.md" ? "Agent Instructions" : "Claude Instructions"}\n`);
+    const existing = await readText(target, `${agentHostSpec(host).instructionsTitle}\n`);
     if (targetExists && !existing.includes(MANAGED_START)) {
       if (!pendingEntrypoints.includes(filename)) pendingEntrypoints.push(filename);
     } else {
-      await writeTextAtomic(target, upsertManagedBlock(existing));
+      await writeTextAtomic(target, upsertManagedBlock(existing, managedBlock(host)));
     }
   }
   await writeJsonAtomic(pendingEntrypointsPath, pendingEntrypoints);
@@ -682,11 +739,11 @@ export async function syncProject(root) {
   const registry = await ensureRegistryMigration(root, await loadRegistry(root));
   await writeTextAtomic(path.join(root, INDEX_RELATIVE), buildAuthorityIndex(registry));
   const pendingEntrypoints = await readJson(path.join(root, ".authority", "pending-entrypoints.json"), []);
-  for (const filename of ["AGENTS.md", "CLAUDE.md"]) {
+  for (const { filename, host } of ENTRYPOINT_HOSTS) {
     const target = path.join(root, filename);
     const content = await readText(target, `# ${filename}\n`);
     if (pendingEntrypoints.includes(filename) && !content.includes(MANAGED_START)) continue;
-    await writeTextAtomic(target, upsertManagedBlock(content));
+    await writeTextAtomic(target, upsertManagedBlock(content, managedBlock(host)));
   }
   return registry;
 }
@@ -1728,8 +1785,8 @@ export async function decideAdoption(root, runId, decisionId, options = {}) {
 }
 
 function minimalEntrypoint(relative) {
-  const title = path.posix.basename(relative).toLowerCase() === "claude.md" ? "# Claude Instructions" : "# Agent Instructions";
-  return `${title}\n\n${managedBlock()}\n`;
+  const spec = agentHostSpec(entrypointHost(relative));
+  return `${spec.instructionsTitle}\n\n${managedBlock(spec.id)}\n`;
 }
 
 export async function applyAdoption(root, runId, options = {}) {
@@ -1827,11 +1884,12 @@ export async function applyAdoption(root, runId, options = {}) {
   return { runId, status: manifest.status, applied: output };
 }
 
-async function chooseReviewer(root, requested, hostSession) {
+export async function chooseReviewer(root, requested, hostSession, availableReviewers = null) {
   if (requested) return requested;
-  const reviewers = await doctorReviewers(root);
+  const host = normalizeHostSession(hostSession);
+  const reviewers = availableReviewers || await doctorReviewers(root);
   return reviewers.find((item) => item.reviewer === "codex" && item.available)?.reviewer
-    || (hostSession === "codex" ? "current-session" : null)
+    || (host ? "current-session" : null)
     || reviewers.find((item) => item.reviewer === "claude" && item.available)?.reviewer
     || reviewers.find((item) => !["codex", "claude"].includes(item.reviewer) && item.available)?.reviewer
     || null;
@@ -1877,7 +1935,7 @@ async function automaticAdoptionUnlocked(root, runId, options = {}) {
     try {
       review = await reviewAdoption(root, runId, { reviewer, approveSend: true, lockHeld: true, timeoutMs: options.reviewerTimeoutMs });
     } catch (error) {
-      if (options.hostSession === "codex" && reviewer === "codex") {
+      if (normalizeHostSession(options.hostSession) && reviewer === "codex") {
         return await prepareSessionReview(root, runId, { lockHeld: true, timeoutMs: options.reviewerTimeoutMs });
       }
       manifest.status = "review-blocked";
@@ -2178,8 +2236,14 @@ async function packageVersion() {
   return manifest.version || "unknown";
 }
 
+function agentHome(host, options = {}) {
+  const spec = agentHostSpec(host);
+  const explicit = options.home || options[spec.homeOptionKey];
+  return path.resolve(explicit || process.env[spec.homeEnvVar] || path.join(os.homedir(), spec.homeDirName));
+}
+
 function codexHome(options = {}) {
-  return path.resolve(options.codexHome || process.env.CODEX_HOME || path.join(os.homedir(), ".codex"));
+  return agentHome("codex", options);
 }
 
 const CODEX_LAUNCHER_MARKER = "markdown-gatekeeper:managed-launcher";
@@ -2188,8 +2252,8 @@ function posixShellQuote(value) {
   return `'${String(value).replaceAll("'", `'"'"'`)}'`;
 }
 
-export function codexLauncherSpec(options = {}) {
-  const home = codexHome(options);
+export function agentLauncherSpec(host, options = {}) {
+  const home = agentHome(host, options);
   const platform = options.platform || process.platform;
   const nodePath = options.nodePath ? String(options.nodePath) : path.resolve(process.execPath);
   const cliPath = options.cliPath ? String(options.cliPath) : path.resolve(fileURLToPath(new URL("../bin/mdg.mjs", import.meta.url)));
@@ -2207,17 +2271,24 @@ export function codexLauncherSpec(options = {}) {
   };
 }
 
-export async function codexSkillStatus(options = {}) {
-  const home = codexHome(options);
+export function codexLauncherSpec(options = {}) {
+  return agentLauncherSpec("codex", options);
+}
+
+export async function agentSkillStatus(host, options = {}) {
+  const spec = agentHostSpec(host);
+  const home = agentHome(spec.id, options);
   const target = path.join(home, "skills", "markdown-gatekeeper");
-  const globalInstructionsPath = path.join(home, "AGENTS.md");
+  const globalInstructionsPath = path.join(home, spec.instructionsFile);
   const globalInstructions = await readText(globalInstructionsPath, "");
   const marker = await readJson(path.join(target, ".mdg-managed.json"), null);
-  const launcher = codexLauncherSpec(options);
+  const launcher = agentLauncherSpec(spec.id, options);
   const launcherContent = await readText(launcher.path, "");
   return {
     cliVersion: await packageVersion(),
-    codexHome: home,
+    host: spec.id,
+    agentHome: home,
+    codexHome: spec.id === "codex" ? home : undefined,
     skillPath: target,
     installed: await exists(path.join(target, "SKILL.md")),
     managed: Boolean(marker?.managedBy === "markdown-gatekeeper"),
@@ -2229,21 +2300,22 @@ export async function codexSkillStatus(options = {}) {
   };
 }
 
-export async function installCodexSkill(options = {}) {
+export async function installAgentSkill(host, options = {}) {
+  const spec = agentHostSpec(host);
   const source = bundledSkillPath();
-  if (!(await exists(path.join(source, "SKILL.md")))) throw new Error(`Bundled Codex Skill is missing: ${source}`);
-  const home = codexHome(options);
+  if (!(await exists(path.join(source, "SKILL.md")))) throw new Error(`Bundled ${spec.label} Skill is missing: ${source}`);
+  const home = agentHome(spec.id, options);
   const skillsRoot = path.join(home, "skills");
   const target = path.join(skillsRoot, "markdown-gatekeeper");
   const existing = await exists(target);
   const marker = existing ? await readJson(path.join(target, ".mdg-managed.json"), null) : null;
   if (existing && marker?.managedBy !== "markdown-gatekeeper" && !options.force) {
-    throw new Error(`Refusing to overwrite unmanaged Codex Skill at ${target}. Re-run with --force to replace it.`);
+    throw new Error(`Refusing to overwrite unmanaged ${spec.label} Skill at ${target}. Re-run with --force to replace it.`);
   }
-  const launcher = codexLauncherSpec(options);
+  const launcher = agentLauncherSpec(spec.id, options);
   const existingLauncher = await readText(launcher.path, null);
   if (existingLauncher !== null && !existingLauncher.includes(CODEX_LAUNCHER_MARKER) && !options.force) {
-    throw new Error(`Refusing to overwrite unmanaged Codex launcher at ${launcher.path}. Re-run with --force to replace it.`);
+    throw new Error(`Refusing to overwrite unmanaged ${spec.label} launcher at ${launcher.path}. Re-run with --force to replace it.`);
   }
   await fs.mkdir(skillsRoot, { recursive: true });
   const staging = path.join(skillsRoot, `.markdown-gatekeeper.tmp-${process.pid}-${Date.now()}`);
@@ -2255,8 +2327,8 @@ export async function installCodexSkill(options = {}) {
     if (existing) await fs.rename(target, backup);
     await fs.rename(staging, target);
     if (existing) await fs.rm(backup, { recursive: true, force: true });
-    const globalInstructionsPath = path.join(home, "AGENTS.md");
-    await writeTextAtomic(globalInstructionsPath, upsertGlobalCodexBlock(await readText(globalInstructionsPath, "")));
+    const globalInstructionsPath = path.join(home, spec.instructionsFile);
+    await writeTextAtomic(globalInstructionsPath, upsertGlobalBootstrapBlock(await readText(globalInstructionsPath, ""), globalBootstrapBlock(spec.id)));
     await writeTextAtomic(launcher.path, launcher.content);
     if (launcher.executable) await fs.chmod(launcher.path, 0o755);
   } catch (error) {
@@ -2264,7 +2336,15 @@ export async function installCodexSkill(options = {}) {
     if (!(await exists(target)) && await exists(backup)) await fs.rename(backup, target);
     throw error;
   }
-  return await codexSkillStatus({ ...options, codexHome: home });
+  return await agentSkillStatus(spec.id, { ...options, home });
+}
+
+export async function codexSkillStatus(options = {}) {
+  return await agentSkillStatus("codex", options);
+}
+
+export async function installCodexSkill(options = {}) {
+  return await installAgentSkill("codex", options);
 }
 
 export async function checkProject(root) {
@@ -2421,7 +2501,7 @@ function parseArgs(argv) {
 function printHelp() {
   console.log(`Markdown Gatekeeper (mdg)\n\n` +
     `Commands:\n` +
-    `  mdg init [project] [--name NAME] [--reviewer codex|claude|NAME] [--reviewer-timeout-ms N] [--host-session codex] [--preview] [--setup-only]\n` +
+    `  mdg init [project] [--name NAME] [--reviewer codex|claude|NAME] [--reviewer-timeout-ms N] [--host-session codex|claude|NAME] [--yes] [--preview] [--setup-only]\n` +
     `  mdg status [project]\n` +
     `  mdg scan [project]\n` +
     `  mdg context [path] [--json] [--project PATH]\n` +
@@ -2433,7 +2513,7 @@ function printHelp() {
     `  mdg publish <file> --topic ID --approve [--scope PATH] [--base-revision N] [--project PATH]\n` +
     `  mdg adopt start [project] [--include PATHS] [--exclude PATHS]\n` +
     `  mdg adopt review <run-id> --reviewer codex|claude|NAME --approve-send [--project PATH]\n` +
-    `  mdg adopt session-review <run-id> --result FILE [--project PATH]\n` +
+    `  mdg adopt session-review <run-id> --result FILE [--host-session codex|claude|NAME] [--project PATH]\n` +
     `  mdg adopt owner-review <run-id> [--decision ID] [--project PATH]\n` +
     `  mdg adopt owner-apply <run-id> --result FILE [--project PATH]\n` +
     `  mdg adopt report <run-id> [--project PATH]\n` +
@@ -2442,8 +2522,8 @@ function printHelp() {
     `  mdg adopt restore <run-id> <decision-id> [--project PATH]\n` +
     `  mdg owner set <topic> --scope PATH --email EMAIL [--project PATH]\n` +
     `  mdg doctor reviewers [--project PATH]\n` +
-    `  mdg setup codex [--codex-home PATH] [--force]\n` +
-    `  mdg setup status [--codex-home PATH]\n` +
+    `  mdg setup codex|claude [--home PATH] [--force]\n` +
+    `  mdg setup status [--home PATH] [--host codex|claude]\n` +
     `  mdg sync [project]\n` +
     `  mdg check [project]\n`);
 }
@@ -2453,16 +2533,22 @@ export async function runCli(argv) {
   const { positional, options } = parseArgs(argv.slice(1));
   if (["help", "--help", "-h"].includes(command)) return printHelp();
   if (command === "init") {
+    const hostSession = normalizeHostSession(options.hostSession);
+    if (options.hostSession !== undefined && !hostSession) throw new Error(`--host-session requires a value, for example ${AGENT_HOST_IDS.join(" or ")}.`);
+    const previewRequested = options.preview === true || options.preview === "true";
+    const setupOnlyRequested = options.setupOnly === true || options.setupOnly === "true";
+    const confirmedRequested = options.yes === true || options.yes === "true";
+    if (confirmedRequested && (previewRequested || setupOnlyRequested)) throw new Error("--yes cannot be combined with --preview or --setup-only.");
     const result = await initializeAndAdopt(positional[0] || process.cwd(), {
       name: options.name,
       reviewer: options.reviewer,
-      hostSession: options.hostSession,
+      hostSession,
       reviewerTimeoutMs: options.reviewerTimeoutMs ? Number(options.reviewerTimeoutMs) : undefined,
       runId: options.runId,
-      confirmed: options.preview !== true && options.preview !== "true" && options.setupOnly !== true && options.setupOnly !== "true",
-      confirmationMode: options.preview ? "preview" : "automatic-init",
-      preview: options.preview === true || options.preview === "true",
-      setupOnly: options.setupOnly === true || options.setupOnly === "true"
+      confirmed: !previewRequested && !setupOnlyRequested,
+      confirmationMode: previewRequested ? "preview" : "automatic-init",
+      preview: previewRequested,
+      setupOnly: setupOnlyRequested
     });
     if (!options.preview && !options.setupOnly) {
       try {
@@ -2479,16 +2565,24 @@ export async function runCli(argv) {
     return;
   }
   if (command === "setup") {
-    if (positional[0] === "codex") {
-      const result = await installCodexSkill({ codexHome: options.codexHome, force: options.force === true || options.force === "true" });
+    const homeOptions = { home: options.home, codexHome: options.codexHome, claudeHome: options.claudeHome };
+    if (AGENT_HOST_IDS.includes(positional[0])) {
+      const result = await installAgentSkill(positional[0], { ...homeOptions, force: options.force === true || options.force === "true" });
       console.log(JSON.stringify(result, null, 2));
       return;
     }
     if (positional[0] === "status") {
-      console.log(JSON.stringify(await codexSkillStatus({ codexHome: options.codexHome }), null, 2));
+      const requestedHost = normalizeHostSession(options.host);
+      if (requestedHost) {
+        console.log(JSON.stringify(await agentSkillStatus(requestedHost, homeOptions), null, 2));
+        return;
+      }
+      const hosts = {};
+      for (const id of AGENT_HOST_IDS) hosts[id] = await agentSkillStatus(id, { codexHome: options.codexHome, claudeHome: options.claudeHome });
+      console.log(JSON.stringify({ ...hosts.codex, hosts }, null, 2));
       return;
     }
-    throw new Error("Usage: mdg setup codex|status");
+    throw new Error(`Usage: mdg setup ${AGENT_HOST_IDS.join("|")}|status`);
   }
   if (command === "adopt") {
     const subcommand = positional[0];
@@ -2511,7 +2605,7 @@ export async function runCli(argv) {
     if (subcommand === "session-review") {
       if (!options.result) throw new Error("adopt session-review requires --result FILE.");
       await submitSessionReview(root, runId, options.result);
-      console.log(JSON.stringify(await automaticAdoption(root, runId, { hostSession: "codex", confirmed: true, confirmationMode: "current-session" }), null, 2));
+      console.log(JSON.stringify(await automaticAdoption(root, runId, { hostSession: normalizeHostSession(options.hostSession) || "codex", confirmed: true, confirmationMode: "current-session" }), null, 2));
       return;
     }
     if (subcommand === "owner-review") {

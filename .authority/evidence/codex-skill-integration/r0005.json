@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "documentRole": "authority-evidence",
+  "normative": false,
+  "mode": "delta",
+  "topic": "codex-skill-integration",
+  "scope": ".",
+  "title": "Agent Host Skill Integration",
+  "revision": 5,
+  "approvedBy": "Wayne",
+  "actor": {
+    "name": "Wayne Ma",
+    "email": "wayne.maq@gmail.com"
+  },
+  "decision": "owner-approved publish",
+  "reviewer": "none",
+  "publisherVersion": "markdown-gatekeeper/0.4",
+  "adoptionRun": null,
+  "decisionId": null,
+  "currentSha256": "4d3b262ebedd9ea42606a622a4af898d6f633945c749447f5fa0508035949a9b",
+  "baseCurrentSha256": "6fa55c4d635616e293b0a8ea9d88ee956111728e9affb336587be7b19f09fcb3",
+  "previousEvidencePath": ".authority/evidence/codex-skill-integration/r0004.md",
+  "previousEvidenceSha256": "7a960cb1c66c765bd3979c661023a719b08324a3766673329c3169c80c6313c8",
+  "previousEvidenceDataPath": ".authority/evidence/codex-skill-integration/r0004.json",
+  "previousEvidenceDataSha256": "569eea9b4a0abd210e803d9315cf22899405cd3c14eee8f719a838354ebaae7d",
+  "changes": [
+    {
+      "item": "R-001",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The npm package must ship the `mdg` CLI and the matching `markdown-gatekeeper` Skill; the CLI remains the deterministic execution and publishing layer. One bundled Skill serves every supported host and must not contain host-specific commands that are wrong in another host.",
+      "previousText": "The npm package must ship the `mdg` CLI and the matching `markdown-gatekeeper` Codex Skill; the CLI remains the deterministic execution and publishing layer."
+    },
+    {
+      "item": "R-002",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg setup <host>` must install or update the bundled Skill, a managed Markdown Gatekeeper bootstrap block in that host's global instruction file, and a stable launcher under that host's home directory. `mdg setup codex` and `mdg setup claude` differ only by host, never by capability.",
+      "previousText": "`mdg setup codex` must install or update the bundled Skill, a managed Markdown Gatekeeper bootstrap block in the user's Codex `AGENTS.md`, and a stable launcher under the Codex home directory."
+    },
+    {
+      "item": "R-003",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "At the start of every new task, the bootstrap must search upward from the working directory for both `PROJECT_AUTHORITY.md` and `.authority/registry.json`; when found, it must invoke the Skill and load status plus applicable scoped current authority before planning or implementation.",
+      "previousText": "At the start of every new Codex task, the bootstrap must search upward from the working directory for both `PROJECT_AUTHORITY.md` and `.authority/registry.json`; when found, it must invoke the Skill and load status plus applicable scoped current authority before planning or implementation."
+    },
+    {
+      "item": "R-006",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The Skill must try global `mdg` first. If it is unavailable, it must use the managed launcher under the current host's home directory before considering a verified repository-local `node ./bin/mdg.mjs`; it must never generate a predictable failed command merely to probe availability.",
+      "previousText": "The Skill must try global `mdg` first. If it is unavailable, it must use the managed launcher under the Codex home directory before considering a verified repository-local `node ./bin/mdg.mjs`; it must never generate a predictable failed command merely to probe availability."
+    },
+    {
+      "item": "R-008",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "New tasks discover the installed bootstrap and Skill automatically. Already-running tasks may retain their startup snapshot and require a new task before updated bootstrap behavior appears.",
+      "previousText": "New Codex tasks discover the installed bootstrap and Skill automatically. Already-running tasks may retain their startup snapshot and require a new task before updated bootstrap behavior appears."
+    },
+    {
+      "item": "R-016",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "The managed launcher must use absolute package and Node paths so GUI sessions work even when macOS does not expose npm's global executable directory through `PATH`.",
+      "previousText": "The managed launcher must use absolute package and Node paths so Codex GUI sessions work even when macOS does not expose npm's global executable directory through `PATH`."
+    },
+    {
+      "item": "R-017",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Project installation writes a project hook for every supported host, and each generated project entrypoint carries the bootstrap block written for its own host."
+    },
+    {
+      "item": "R-010",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "MCP remains optional and is not required for automatic session behavior in any host.",
+      "previousText": "MCP remains optional and is not required for automatic Codex session behavior."
+    },
+    {
+      "item": "R-018",
+      "change": "added",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Added by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Installing one host must not create, modify, or claim another host's home directory, global instruction file, or launcher."
+    },
+    {
+      "item": "R-011",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "`mdg setup status` must report CLI version, Skill version, Skill path, stable launcher path, global instruction file path, and whether the global bootstrap and launcher are installed, for every supported host.",
+      "previousText": "`mdg setup status` must report CLI version, Skill version, Skill path, stable launcher path, global `AGENTS.md` path, and whether the global bootstrap and launcher are installed."
+    },
+    {
+      "item": "R-012",
+      "change": "modified",
+      "sources": [
+        "S-001"
+      ],
+      "reason": "Changed by an owner-approved revision.",
+      "confidence": "high",
+      "text": "Tests must prove, for each supported host, that installation is idempotent, preserves unrelated global instructions, migrates the prior unmarked block, leaves unmanaged projects untouched, installs quiet zero-touch bootstrap instructions, and creates a working stable launcher without relying on the caller's `PATH`.",
+      "previousText": "Tests must prove that installation is idempotent, preserves unrelated global instructions, migrates the prior unmarked block, leaves unmanaged projects untouched, installs quiet zero-touch bootstrap instructions, and creates a working stable launcher without relying on the caller's `PATH`."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S-001",
+      "path": "docs/proposals/codex-skill-integration.md",
+      "archivePath": ".authority/archive/proposals/1788311239844-codex-skill-integration.md",
+      "sha256": "87b09f2af262ed40b240aecd13826f2cd1177c60da60ae9314d08d57bfba8068",
+      "git": "owner-approved publish"
+    }
+  ],
+  "unresolved": [],
+  "createdAt": "2026-09-02T01:07:20.015Z"
+}

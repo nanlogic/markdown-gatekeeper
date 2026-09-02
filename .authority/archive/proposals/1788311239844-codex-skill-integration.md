@@ -1,10 +1,3 @@
----
-authority-topic: codex-skill-integration
-authority-scope: .
-authority-owner: Wayne
-authority-revision: 5
----
-
 # Agent Host Skill Integration
 
 ## Applies to
